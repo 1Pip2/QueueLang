@@ -5,11 +5,15 @@
 #include <stdlib.h>
 
 enum errors {
-    ERR_UNREACHABLE=1,
+    ERR_IO=1,
+    ERR_UNREACHABLE,
     ERR_TYPE,
     ERR_QUEUE,
 };
 
+#define RAISE_FOPEN(filename)\
+printf("IoError: Unable to open file: %s\n", filename);\
+exit(ERR_IO);
 
 #define RAISE_UNREACHABLE()\
 printf("FatalError: Unreachable (bytecode might be corrupted)\n");\

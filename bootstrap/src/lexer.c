@@ -128,6 +128,9 @@ void appendIdentifier(Lexer* lexer, char* str) {
     if (strcmp(str, "fun") == 0) {
         tkQueueAppend(lexer, _TKTYPE_KEYWORD, TKTYPE_FUN, NULL, 0);
         free(str);
+    } else if (strcmp(str, "prog") == 0) {
+        tkQueueAppend(lexer, _TKTYPE_KEYWORD, TKTYPE_PROG, NULL, 0);
+        free(str);
     } else if (strcmp(str, "do") == 0) {
         tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_DO, NULL, 0);
         free(str);

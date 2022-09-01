@@ -14,6 +14,7 @@ typedef enum TokenType2 {
     TKTYPE_ID,
     
     TKTYPE_FUN,
+    TKTYPE_PROG,
 
     TKTYPE_DO,
     TKTYPE_PLUS,
@@ -50,5 +51,7 @@ typedef struct TkQueue {
 
 TkQueue* lexFile(char*);
 Token* tkQueuePop(TkQueue*);
+
+#define PRINT_DEBUG(token) printf("In %s::%lu\n", token->filename, token->line);
 
 #endif
