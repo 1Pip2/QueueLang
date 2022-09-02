@@ -57,6 +57,8 @@ char* strQitem(VmOp op) {
         return "*";
     case VMOP_DIV:
         return "/";
+    case VMOP_MOD:
+        return "%";
     case VMOP_DUMP:
         return ".";
     case VMOP_EXIT:
