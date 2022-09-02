@@ -268,6 +268,12 @@ void lexChar(Lexer* lexer) {
         case ']':
             tkQueueAppend(lexer, _TKTYPE_SEPARATOR, TKTYPE_CBRACK, NULL, 0);
             return;
+        case '{':
+            tkQueueAppend(lexer, _TKTYPE_SEPARATOR, TKTYPE_OBRACE, NULL, 0);
+            return;
+        case '}':
+            tkQueueAppend(lexer, _TKTYPE_SEPARATOR, TKTYPE_CBRACE, NULL, 0);
+            return;
     }
 
     if (isLetter(line[lexer->index])) {

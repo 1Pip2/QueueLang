@@ -1,7 +1,4 @@
 prog: [
-    = 3 5 . ;
-    > 3 5 . ;
-    < 3 5 . ;
-    <= 3 5 ;
-    . dup req; . req;
+    . { 6 -6 0 7 10 } do
+    { True False 10 } dup . req . req do do
 ]

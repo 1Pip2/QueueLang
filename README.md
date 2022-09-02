@@ -59,3 +59,8 @@ Queue:
 - 'do' executes the front of the queue
 - 'req' moves the front element of the queue to the back
 - 'dup' will enqueue a copy of the front element in the queue
+
+### Litterals
+- Int: 0, 5, -4, 100, ...
+- Bool: True, False
+- Array: {Litteral, Litteral, ...}

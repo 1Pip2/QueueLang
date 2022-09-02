@@ -38,6 +38,8 @@ typedef enum TokenType2 {
     TKTYPE_COLON,
     TKTYPE_OBRACK,
     TKTYPE_CBRACK,
+    TKTYPE_OBRACE,
+    TKTYPE_CBRACE,
 
     TKTYPE_INT,
     TKTYPE_TRUE,

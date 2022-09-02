@@ -137,6 +137,16 @@ void compileLit(Compiler* compiler) {
     }
 }
 
+void compileArrayLit(Compiler* compiler) {
+        appendByte(compiler->outputfile, BC_DATA);
+        appendByte(compiler->outputfile, DT_ARRAY);
+
+        while ((compiler->curr = safePop(compiler))->type2 != TKTYPE_CBRACE) {
+            compileLit(compiler);
+        }
+        appendByte(compiler->outputfile, ENDARRAY);
+}
+
 void compileBody(Compiler* compiler) {
     compiler->curr = safePop(compiler);
     expectSecType(compiler->curr, TKTYPE_OBRACK);
@@ -146,6 +156,8 @@ void compileBody(Compiler* compiler) {
             appendByte(compiler->outputfile, get_op(compiler->curr->type2));
         } else if (compiler->curr->type1 == _TKTYPE_LIT) {
             compileLit(compiler);
+        } else if (compiler->curr->type2 == TKTYPE_OBRACE) {
+            compileArrayLit(compiler);
         } else {
             PRINT_DEBUG(compiler->curr);
             printf("SyntaxError\n");

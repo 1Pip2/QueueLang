@@ -13,7 +13,15 @@ if (qitem->type != VMOP_DATA) { \
 }\
 if (qitem->data->type != expected_type) { \
     dumpQueue(vm->queue); \
-    RAISE_UNREACHABLE(); \
+    printf("TypeError\n"); \
+    RAISE_COMMON(); \
+}
+
+#define EXPECT_RAW_DT(type, expected_type) \
+if (type != expected_type) { \
+    dumpQueue(vm->queue); \
+    printf("TypeError\n"); \
+    RAISE_COMMON(); \
 }
 
 #define MATHOP(operation) \
@@ -83,6 +91,35 @@ void execLessEqu(VirtMachine* vm) {
     COMPOP(<=);
 }
 
+void printData(VirtMachine* vm, VmData* data) {
+    switch (data->type) {
+    case VMDT_INT:
+        printf("%ld", data->data);
+        break;
+    case VMDT_BOOL:
+        if (data->data) {
+            printf("True");
+        } else {
+            printf("False");
+        }
+        break;
+    case VMDT_ARRAY:
+        printf("{");
+        VmArray* array = (void*) data->data;
+        for (size_t i = 0; i < array->size; i++) {
+            printData(vm, array->array[i]);
+            if (i < array->size - 1) {
+                printf(", ");
+            }
+        }
+        printf("}");
+        break;
+    default:
+        dumpQueue(vm->queue);
+        RAISE_UNREACHABLE();
+    }
+}
+
 void execDump(VirtMachine* vm) {
     Qitem* printval = dequeue(vm->queue);
     if (printval->type != VMOP_DATA) {
@@ -90,22 +127,8 @@ void execDump(VirtMachine* vm) {
         RAISE_INVALID_ARG();
     }
 
-    switch (printval->data->type) {
-    case VMDT_INT:
-        printf("%ld\n", (int64_t) printval->data->data);
-        break;
-    case VMDT_BOOL:
-        if (printval->data->data) {
-            puts("True");
-        } else {
-            puts("False");
-        }
-        break;
-    
-    default:
-        dumpQueue(vm->queue);
-        RAISE_UNREACHABLE();
-    }
+    printData(vm, printval->data);
+    puts("");
 
     free(printval->data);
     free(printval);
@@ -118,9 +141,8 @@ void execExit(VirtMachine* vm) {
     exit(retval->data->data);
 } 
 
-void opData(VirtMachine* vm) {
+VmData* initData(VirtMachine* vm) {
     VmData* new = malloc(sizeof(VmData));
-    enqueue(vm->queue, new, VMOP_DATA);
     new->type = *(vm->ip++);
     switch (new->type) {
     case VMDT_INT:
@@ -130,12 +152,33 @@ void opData(VirtMachine* vm) {
     case VMDT_BOOL:
         new->data = *(vm->ip++);
         break;
+    case VMDT_ARRAY:
+        VmArray* array = malloc(sizeof(VmArray));
+        new->data = (u_int64_t) array;
+        array->array = NULL;
+        array->size = 0;
+        while (*(vm->ip++) != ARRAYEND) {
+            array->array = realloc(array->array, (++array->size) * sizeof(VmData*));
+            array->array[array->size - 1] = initData(vm);
+            if (array->size == 1) {
+                array->type = array->array[0]->type;
+            } else {
+                EXPECT_RAW_DT(array->array[array->size - 1]->type, array->type);
+            }
+        }
+
+        break;
     
     default:
         dumpQueue(vm->queue);
         RAISE_UNREACHABLE();
         break;
     }
+
+    return new;
+}
+void opData(VirtMachine* vm) {
+    enqueue(vm->queue, initData(vm), VMOP_DATA);
 }
 
 void opDo(VirtMachine* vm) {

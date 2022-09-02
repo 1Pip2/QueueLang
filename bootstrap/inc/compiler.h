@@ -26,10 +26,12 @@ typedef enum ByteCode {
     BC_DUP,
     
     BC_EXIT,
+    ENDARRAY,
 } ByteCode;
 typedef enum BcDataType {
     DT_INT,
     DT_BOOL,
+    DT_ARRAY,
 } BcDataType;
 void compileTokens(TkQueue*, char*);
 
