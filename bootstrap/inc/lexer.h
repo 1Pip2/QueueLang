@@ -23,6 +23,7 @@ typedef enum TokenType2 {
     TKTYPE_FSLASH,
     TKTYPE_PERCENT,
     TKTYPE_DUMP,
+    TKTYPE_REQ,
 
     TKTYPE_COLON,
     TKTYPE_OBRACK,

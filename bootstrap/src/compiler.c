@@ -89,6 +89,8 @@ ByteCode get_op(TokenType2 type) {
         return BC_MOD;
     case TKTYPE_DUMP:
         return BC_DUMP;
+    case TKTYPE_REQ:
+        return BC_REQ;
     
     default:
         printf("Unreachable in get_op\n");

@@ -3,13 +3,18 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "queue.h"
 
 enum errors {
-    ERR_IO=1,
+    ERR_COMMON=1,
+    ERR_IO,
     ERR_UNREACHABLE,
     ERR_TYPE,
     ERR_QUEUE,
 };
+
+#define RAISE_COMMON()\
+exit(ERR_COMMON);
 
 #define RAISE_FOPEN(filename)\
 printf("IoError: Unable to open file: %s\n", filename);\
@@ -25,7 +30,7 @@ exit(ERR_TYPE);
 
 #define RAISE_INVALID_ARG()\
 printf("TypeError: Argument must have type: 'data'\n");\
-exit(ERR_TYPE)
+exit(ERR_TYPE);
 
 #define RAISE_EMPTY_QUEUE()\
 printf("QueueError: Dequeued empty queue\n");\

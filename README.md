@@ -34,7 +34,7 @@ It is called using the 'call' operation:<br />
 For example:
 >call min 5 4 do
 
-Will result in 4 beeing enqueued.
+Will result in 4 being enqueued.
 
 ### Statements
 A statement is either an operation or a litteral.

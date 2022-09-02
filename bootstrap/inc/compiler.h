@@ -15,6 +15,7 @@ typedef enum ByteCode {
     BC_MOD,
     
     BC_DUMP,
+    BC_REQ,
     
     BC_EXIT,
 } ByteCode;

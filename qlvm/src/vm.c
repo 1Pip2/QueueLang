@@ -8,9 +8,11 @@
 // TODO: Proper TypeError
 #define EXPECT_DT(qitem, expected_type) \
 if (qitem->type != VMOP_DATA) { \
+    dumpQueue(vm->queue); \
     RAISE_INVALID_ARG(); \
 }\
 if (qitem->data->type != expected_type) { \
+    dumpQueue(vm->queue); \
     RAISE_UNREACHABLE(); \
 }
 
@@ -55,13 +57,14 @@ void execDump(VirtMachine* vm) {
     free(printval);
 }
 
+
 void execExit(VirtMachine* vm) {
     Qitem* retval = dequeue(vm->queue);
     EXPECT_DT(retval, VMDT_INT);
     exit(retval->data->data);
 } 
 
-static inline void opData(VirtMachine* vm) {
+void opData(VirtMachine* vm) {
     VmData* new = malloc(sizeof(VmData));
     enqueue(vm->queue, new, VMOP_DATA);
     new->type = *(vm->ip++);
@@ -97,14 +100,30 @@ void opDo(VirtMachine* vm) {
         break;
 
     case VMOP_DATA:
+        dumpQueue(vm->queue);
         RAISE_EXEC_DATA();
     case VMOP_DO:
+        dumpQueue(vm->queue);
         RAISE_UNREACHABLE();
     default:
+        dumpQueue(vm->queue);
         RAISE_UNREACHABLE();
     }
 
     free(op);
+}
+
+void opReq(VirtMachine* vm) {
+    Qitem* front = dequeue(vm->queue);
+    front->last = NULL;
+
+    if (vm->queue->back == NULL) {
+        vm->queue->front = front;
+        vm->queue->back = front;
+    } else {
+        vm->queue->back->last = front;
+        vm->queue->back = front;
+    }
 }
 
 VirtMachine* vmInit(u_int8_t* code) {
@@ -114,11 +133,15 @@ VirtMachine* vmInit(u_int8_t* code) {
     return new;
 }
 
-_Noreturn void vmInterpret(u_int8_t* code) {
+_Noreturn void vmInterpret(u_int8_t* code, VmOptions* options) {
     VirtMachine* vm = vmInit(code);
 
     VmOp op;
     while (1) {
+        if (options->dumpInfo) {
+            dumpQueue(vm->queue);
+        }
+
         op = *(vm->ip++);
         if (op == VMOP_DATA) {
             opData(vm);
@@ -126,10 +149,14 @@ _Noreturn void vmInterpret(u_int8_t* code) {
         } else if (op == VMOP_DO) {
             opDo(vm);
         
+        } else if (op == VMOP_REQ) { 
+            opReq(vm);
+
         } else if (op >= VMOP_ADD && op <= VMOP_EXIT) {    
             enqueue(vm->queue, NULL, op);
 
         } else {
+            dumpQueue(vm->queue);
             RAISE_UNREACHABLE();
         }
     }    

@@ -20,5 +20,6 @@ typedef struct Queue {
 Queue* queueInit(void);
 Qitem* enqueue(Queue*, VmData*, VmOp);
 Qitem* dequeue(Queue*);
+void dumpQueue(Queue*);
 
 #endif

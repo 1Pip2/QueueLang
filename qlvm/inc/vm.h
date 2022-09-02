@@ -15,6 +15,7 @@ typedef enum VmOp {
     VMOP_MOD,
     
     VMOP_DUMP,
+    VMOP_REQ,
     
     VMOP_EXIT,
 } VmOp;
@@ -33,7 +34,11 @@ typedef struct VirtMachine {
     struct Queue* queue;
 } VirtMachine;
 
+typedef struct VmOptions {
+    char dumpInfo;
+} VmOptions;
+
 VirtMachine* vmInit(u_int8_t*);
-_Noreturn void vmInterpret(u_int8_t*);
+_Noreturn void vmInterpret(u_int8_t*, VmOptions*);
 
 #endif

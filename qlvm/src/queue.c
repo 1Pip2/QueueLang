@@ -43,3 +43,40 @@ Qitem* dequeue(Queue* queue) {
     
     return tmp;
 }
+
+/* Return string of VmOpType */
+char* strQitem(VmOp op) {
+    switch (op) {
+    case VMOP_DATA:
+        return "Data";
+    case VMOP_ADD:
+        return "+";
+    case VMOP_SUB:
+        return "-";
+    case VMOP_MULT:
+        return "*";
+    case VMOP_DIV:
+        return "/";
+    case VMOP_DUMP:
+        return ".";
+    case VMOP_EXIT:
+        return "exit";
+    
+    default:
+        RAISE_UNREACHABLE();
+    }
+}
+
+/* print queue to stdout */
+void dumpQueue(Queue* queue) {
+    printf("Queue: [");
+
+    Qitem* curr = queue->front;
+    while (curr != NULL) {
+        printf("%s; ", strQitem(curr->type));
+
+        curr = curr->last;
+    }
+
+    printf("]\n");
+}
