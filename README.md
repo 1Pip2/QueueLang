@@ -46,3 +46,4 @@ A statement is either an operation or a litteral.
 - '/' will divide the front two elements of the queue
 - '%' will mod the front two elements of the queue
 - 'do' executes the front of the queue
+- 'req' moves the front element of the queue to the back
