@@ -28,6 +28,9 @@ exit(ERR_UNREACHABLE);
 printf("TypeError: Cannot execute type: 'data'\n");\
 exit(ERR_TYPE);
 
+#define RAISE_TYPE() \
+exit(ERR_TYPE);
+
 #define RAISE_INVALID_ARG()\
 printf("TypeError: Argument must have type: 'data'\n");\
 exit(ERR_TYPE);

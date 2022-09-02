@@ -2,6 +2,8 @@
 #include <stdlib.h>
 
 #include "vm.h"
+#include "op.h"
+#include "data.h"
 #include "errors.h"
 #include "queue.h"
 
@@ -54,8 +56,8 @@ Qitem* queuePeek(Queue* queue) {
 }
 
 /* Return string of VmOpType */
-char* strQitem(VmOp op) {
-    switch (op) {
+char* strQitem(Qitem* op) {
+    switch (op->type) {
     case VMOP_DATA:
         return "Data";
 
@@ -98,7 +100,12 @@ void dumpQueue(Queue* queue) {
 
     Qitem* curr = queue->front;
     while (curr != NULL) {
-        printf("%s; ", strQitem(curr->type));
+        if (curr->type == VMOP_DATA) {
+            printDataType(curr->data->type);
+            printf("; ");
+        } else {
+            printf("%s; ", strQitem(curr));
+        }
 
         curr = curr->last;
     }

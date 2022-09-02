@@ -1,4 +1,4 @@
 prog: [
     . { 6 -6 0 7 10 } do
-    { True False 10 } dup . req . req do do
+    { True False False } dup . req . req do do
 ]

@@ -2,6 +2,8 @@
 #define VM_H
 
 #include <stdlib.h>
+#include "op.h"
+#include "data.h"
 
 typedef enum VmOp {
     VMOP_DATA,
@@ -28,21 +30,6 @@ typedef enum VmOp {
     VMOP_EXIT,
     ARRAYEND,
 } VmOp;
-
-typedef enum VmDataType {
-    VMDT_INT,
-    VMDT_BOOL,
-    VMDT_ARRAY,
-} VmDataType;
-typedef struct VmData {
-    u_int64_t data;
-    VmDataType type;
-} VmData;
-typedef struct VmArray {
-    VmData** array;
-    VmDataType type;
-    size_t size;
-} VmArray;
 
 struct Queue;
 typedef struct VirtMachine {
