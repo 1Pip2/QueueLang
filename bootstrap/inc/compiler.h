@@ -7,7 +7,8 @@ typedef enum ByteCode {
     BC_DATA,
     
     BC_DO,
- 
+    BC_DOALL,
+
     BC_ADD,
     BC_SUB,
     BC_MULT,

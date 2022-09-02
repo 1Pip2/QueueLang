@@ -77,6 +77,8 @@ ByteCode get_op(TokenType2 type) {
     switch (type) {
     case TKTYPE_DO:
         return BC_DO;
+    case TKTYPE_DOALL:
+        return BC_DOALL;
 
     case TKTYPE_PLUS:
         return BC_ADD;

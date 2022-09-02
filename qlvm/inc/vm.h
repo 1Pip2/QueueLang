@@ -7,7 +7,8 @@ typedef enum VmOp {
     VMOP_DATA,
     
     VMOP_DO,
-    
+    VMOP_DOALL,
+
     VMOP_ADD,
     VMOP_SUB,
     VMOP_MULT,
@@ -39,6 +40,7 @@ typedef struct VmData {
 struct Queue;
 typedef struct VirtMachine {
     u_int8_t* ip;
+    u_int64_t op_count;
     struct Queue* queue;
 } VirtMachine;
 

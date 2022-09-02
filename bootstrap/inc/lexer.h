@@ -17,6 +17,8 @@ typedef enum TokenType2 {
     TKTYPE_PROG,
 
     TKTYPE_DO,
+    TKTYPE_DOALL,
+
     TKTYPE_PLUS,
     TKTYPE_MINUS,
     TKTYPE_ASTERISK,

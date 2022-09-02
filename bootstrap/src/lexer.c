@@ -212,6 +212,10 @@ void lexChar(Lexer* lexer) {
         case '\t':
             return;
 
+        case ';':
+            tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_DOALL, NULL, 0);
+            return;
+
         case '+':
             tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_PLUS, NULL, 0);
             return;

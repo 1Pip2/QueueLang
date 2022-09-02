@@ -1,7 +1,7 @@
 prog: [
-    = 3 5 . do do
-    > 3 5 . do do
-    < 3 5 . do do
-    <= 3 5 do
-    . dup req do . req do
+    = 3 5 . ;
+    > 3 5 . ;
+    < 3 5 . ;
+    <= 3 5 ;
+    . dup req; . req;
 ]

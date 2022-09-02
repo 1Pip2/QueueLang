@@ -240,7 +240,11 @@ _Noreturn void vmInterpret(u_int8_t* code, VmOptions* options) {
 
         } else if (op == VMOP_DO) {
             opDo(vm);
-        
+            vm->op_count--;
+        } else if (op == VMOP_DOALL) {
+            for (; vm->op_count > 0; vm->op_count--) {
+                opDo(vm);
+            }
         } else if (op == VMOP_REQ) { 
             opReq(vm);
 
@@ -249,6 +253,7 @@ _Noreturn void vmInterpret(u_int8_t* code, VmOptions* options) {
 
         } else if (op >= VMOP_ADD && op <= VMOP_EXIT) {    
             enqueue(vm->queue, NULL, op);
+            vm->op_count++;
 
         } else {
             dumpQueue(vm->queue);
