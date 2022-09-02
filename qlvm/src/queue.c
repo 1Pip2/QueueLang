@@ -44,11 +44,21 @@ Qitem* dequeue(Queue* queue) {
     return tmp;
 }
 
+Qitem* queuePeek(Queue* queue) {
+    if (queue->front == NULL) {
+        RAISE_EMPTY_QUEUE();
+    }
+
+
+    return queue->front;
+}
+
 /* Return string of VmOpType */
 char* strQitem(VmOp op) {
     switch (op) {
     case VMOP_DATA:
         return "Data";
+
     case VMOP_ADD:
         return "+";
     case VMOP_SUB:
@@ -59,8 +69,21 @@ char* strQitem(VmOp op) {
         return "/";
     case VMOP_MOD:
         return "%";
+    
+    case VMOP_EQU:
+        return "=";
+    case VMOP_GREATER:
+        return ">";
+    case VMOP_LESS:
+        return "<";
+    case VMOP_GREATEREQU:
+        return ">=";
+    case VMOP_LESSEQU:
+        return "<=";
+    
     case VMOP_DUMP:
         return ".";
+    
     case VMOP_EXIT:
         return "exit";
     

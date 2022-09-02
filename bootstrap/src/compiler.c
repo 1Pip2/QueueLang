@@ -88,14 +88,24 @@ ByteCode get_op(TokenType2 type) {
         return BC_DIV;
     case TKTYPE_PERCENT:
         return BC_MOD;
+
     case TKTYPE_EQUALS:
         return BC_EQU;
+    case TKTYPE_GREATER:
+        return BC_GREATER;
+    case TKTYPE_LESS:
+        return BC_LESS;
+    case TKTYPE_GREATEREQU:
+        return BC_GREATEREQU;
+    case TKTYPE_LESSEQU:
+        return BC_LESSEQU;
     
     case TKTYPE_DUMP:
         return BC_DUMP;
-    
     case TKTYPE_REQ:
         return BC_REQ;
+    case TKTYPE_DUP:
+        return BC_DUP;
     
     default:
         printf("Unreachable in get_op\n");

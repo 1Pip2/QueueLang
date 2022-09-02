@@ -40,10 +40,21 @@ Will result in 4 being enqueued.
 A statement is either an operation or a litteral.
 
 ### Operations
+Arithmetic:
 - '\+' will add the front two elements of the queue
 - '-' will subtract the front two elements of the queue
 - '*' will multiply the front two elements of the queue
 - '/' will divide the front two elements of the queue
 - '%' will mod the front two elements of the queue
+
+Conditional:
+- '=' will check if the front two elements of the queue are equal
+- '>' will check if the front element is greater than the second
+- '<' will check if the front element is less than the second
+- '>=' will check if the front element is greater or equal
+- '<=' will check if the front element is less or equal
+
+Queue:
 - 'do' executes the front of the queue
 - 'req' moves the front element of the queue to the back
+- 'dup' will enqueue a copy of the front element in the queue

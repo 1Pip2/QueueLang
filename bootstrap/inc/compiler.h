@@ -13,11 +13,16 @@ typedef enum ByteCode {
     BC_MULT,
     BC_DIV,
     BC_MOD,
-    
+
     BC_EQU,
+    BC_GREATER,
+    BC_LESS,
+    BC_GREATEREQU,
+    BC_LESSEQU,
 
     BC_DUMP,
     BC_REQ,
+    BC_DUP,
     
     BC_EXIT,
 } ByteCode;

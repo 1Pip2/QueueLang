@@ -15,10 +15,15 @@ typedef enum VmOp {
     VMOP_MOD,
     
     VMOP_EQU,
+    VMOP_GREATER,
+    VMOP_LESS,
+    VMOP_GREATEREQU,
+    VMOP_LESSEQU,
 
     VMOP_DUMP,
     VMOP_REQ,
-    
+    VMOP_DUP,
+
     VMOP_EXIT,
 } VmOp;
 

@@ -70,6 +70,18 @@ void execMod(VirtMachine* vm) {
 void execEqu(VirtMachine* vm) {
     COMPOP(==);
 }
+void execGreater(VirtMachine* vm) {
+    COMPOP(>);
+}
+void execLess(VirtMachine* vm) {
+    COMPOP(<);
+}
+void execGreaterEqu(VirtMachine* vm) {
+    COMPOP(>=);
+}
+void execLessEqu(VirtMachine* vm) {
+    COMPOP(<=);
+}
 
 void execDump(VirtMachine* vm) {
     Qitem* printval = dequeue(vm->queue);
@@ -144,8 +156,21 @@ void opDo(VirtMachine* vm) {
     case VMOP_MOD:
         execMod(vm);
         break;
+
     case VMOP_EQU:
         execEqu(vm);
+        break;
+    case VMOP_GREATER:
+        execGreater(vm);
+        break;
+    case VMOP_LESS:
+        execLess(vm);
+        break;
+    case VMOP_GREATEREQU:
+        execGreaterEqu(vm);
+        break;
+    case VMOP_LESSEQU:
+        execLessEqu(vm);
         break;
 
     case VMOP_DUMP:
@@ -182,6 +207,16 @@ void opReq(VirtMachine* vm) {
         vm->queue->back = front;
     }
 }
+void opDup(VirtMachine* vm) {
+    Qitem* front = queuePeek(vm->queue);
+    VmData* data = NULL;
+    if (front->type == VMOP_DATA) {
+        data = malloc(sizeof(VmData));
+        data->type = front->data->type;
+        data->data = front->data->data;
+    }
+    enqueue(vm->queue, data, front->type);
+}
 
 VirtMachine* vmInit(u_int8_t* code) {
     VirtMachine* new = malloc(sizeof(VirtMachine));
@@ -208,6 +243,9 @@ _Noreturn void vmInterpret(u_int8_t* code, VmOptions* options) {
         
         } else if (op == VMOP_REQ) { 
             opReq(vm);
+
+        } else if (op == VMOP_DUP) { 
+            opDup(vm);
 
         } else if (op >= VMOP_ADD && op <= VMOP_EXIT) {    
             enqueue(vm->queue, NULL, op);

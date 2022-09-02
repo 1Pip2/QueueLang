@@ -1,5 +1,7 @@
 prog: [
-    . True do
-    . False do
-    = 5 5 . do do
+    = 3 5 . do do
+    > 3 5 . do do
+    < 3 5 . do do
+    <= 3 5 do
+    . dup req do . req do
 ]
