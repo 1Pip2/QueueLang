@@ -63,4 +63,4 @@ Queue:
 ### Litterals
 - Int: 0, 5, -4, 100, ...
 - Bool: True, False
-- Array: {Litteral, Litteral, ...}
+- Array: {Litteral Litteral ...}
