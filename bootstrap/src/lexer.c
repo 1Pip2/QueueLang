@@ -131,11 +131,19 @@ void appendIdentifier(Lexer* lexer, char* str) {
     } else if (strcmp(str, "prog") == 0) {
         tkQueueAppend(lexer, _TKTYPE_KEYWORD, TKTYPE_PROG, NULL, 0);
         free(str);
+
     } else if (strcmp(str, "do") == 0) {
         tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_DO, NULL, 0);
         free(str);
     } else if (strcmp(str, "req") == 0) {
         tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_REQ, NULL, 0);
+        free(str);
+
+    } else if (strcmp(str, "True") == 0) {
+        tkQueueAppend(lexer, _TKTYPE_LIT, TKTYPE_TRUE, NULL, 0);
+        free(str);
+    } else if (strcmp(str, "False") == 0) {
+        tkQueueAppend(lexer, _TKTYPE_LIT, TKTYPE_FALSE, NULL, 0);
         free(str);
     } else {
         tkQueueAppend(lexer, _TKTYPE_ID, TKTYPE_ID, str, 0);
@@ -215,6 +223,9 @@ void lexChar(Lexer* lexer) {
             return;
         case '%':
             tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_PERCENT, NULL, 0);
+            return;
+        case '=':
+            tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_EQUALS, NULL, 0);
             return;
         case '.':
             tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_DUMP, NULL, 0);

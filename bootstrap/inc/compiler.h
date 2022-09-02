@@ -14,6 +14,8 @@ typedef enum ByteCode {
     BC_DIV,
     BC_MOD,
     
+    BC_EQU,
+
     BC_DUMP,
     BC_REQ,
     
@@ -21,6 +23,7 @@ typedef enum ByteCode {
 } ByteCode;
 typedef enum BcDataType {
     DT_INT,
+    DT_BOOL,
 } BcDataType;
 void compileTokens(TkQueue*, char*);
 

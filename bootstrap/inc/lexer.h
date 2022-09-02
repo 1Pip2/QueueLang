@@ -22,6 +22,7 @@ typedef enum TokenType2 {
     TKTYPE_ASTERISK,
     TKTYPE_FSLASH,
     TKTYPE_PERCENT,
+    TKTYPE_EQUALS,
     TKTYPE_DUMP,
     TKTYPE_REQ,
 
@@ -30,6 +31,8 @@ typedef enum TokenType2 {
     TKTYPE_CBRACK,
 
     TKTYPE_INT,
+    TKTYPE_TRUE,
+    TKTYPE_FALSE,
 } TokenType2;
 
 typedef struct Token {

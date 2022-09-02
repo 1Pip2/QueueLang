@@ -14,6 +14,8 @@ typedef enum VmOp {
     VMOP_DIV,
     VMOP_MOD,
     
+    VMOP_EQU,
+
     VMOP_DUMP,
     VMOP_REQ,
     
@@ -22,6 +24,7 @@ typedef enum VmOp {
 
 typedef enum VmDataType {
     VMDT_INT,
+    VMDT_BOOL,
 } VmDataType;
 typedef struct VmData {
     u_int64_t data;

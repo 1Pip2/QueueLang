@@ -77,6 +77,7 @@ ByteCode get_op(TokenType2 type) {
     switch (type) {
     case TKTYPE_DO:
         return BC_DO;
+
     case TKTYPE_PLUS:
         return BC_ADD;
     case TKTYPE_MINUS:
@@ -87,8 +88,12 @@ ByteCode get_op(TokenType2 type) {
         return BC_DIV;
     case TKTYPE_PERCENT:
         return BC_MOD;
+    case TKTYPE_EQUALS:
+        return BC_EQU;
+    
     case TKTYPE_DUMP:
         return BC_DUMP;
+    
     case TKTYPE_REQ:
         return BC_REQ;
     
@@ -104,6 +109,16 @@ void compileLit(Compiler* compiler) {
         appendByte(compiler->outputfile, BC_DATA);
         appendByte(compiler->outputfile, DT_INT);
         appendQuad(compiler->outputfile, compiler->curr->numdata);
+        break;
+    case TKTYPE_TRUE:
+        appendByte(compiler->outputfile, BC_DATA);
+        appendByte(compiler->outputfile, DT_BOOL);
+        appendByte(compiler->outputfile, 1);
+        break;
+    case TKTYPE_FALSE:
+        appendByte(compiler->outputfile, BC_DATA);
+        appendByte(compiler->outputfile, DT_BOOL);
+        appendByte(compiler->outputfile, 0);
         break;
     default:
         printf("Unreachable in compileLit\n");

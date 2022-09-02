@@ -33,6 +33,24 @@ free(op2->data); \
 free(op1); \
 free(op2);
 
+#define COMPOP(operation) \
+Qitem* op1 = dequeue(vm->queue); \
+Qitem* op2 = dequeue(vm->queue); \
+\
+EXPECT_DT(op1, VMDT_INT); \
+EXPECT_DT(op2, VMDT_INT); \
+\
+VmData* new = malloc(sizeof(VmData)); \
+new->type = VMDT_BOOL; \
+new->data = op1->data->data operation op2->data->data; \
+enqueue(vm->queue, new, VMOP_DATA); \
+\
+free(op1->data); \
+free(op2->data); \
+free(op1); \
+free(op2);
+
+
 void execAdd(VirtMachine* vm) {
     MATHOP(+);
 }
@@ -49,10 +67,34 @@ void execMod(VirtMachine* vm) {
     MATHOP(%);
 }
 
+void execEqu(VirtMachine* vm) {
+    COMPOP(==);
+}
+
 void execDump(VirtMachine* vm) {
     Qitem* printval = dequeue(vm->queue);
-    EXPECT_DT(printval, VMDT_INT);
-    printf("%ld\n", (int64_t) printval->data->data);
+    if (printval->type != VMOP_DATA) {
+        dumpQueue(vm->queue);
+        RAISE_INVALID_ARG();
+    }
+
+    switch (printval->data->type) {
+    case VMDT_INT:
+        printf("%ld\n", (int64_t) printval->data->data);
+        break;
+    case VMDT_BOOL:
+        if (printval->data->data) {
+            puts("True");
+        } else {
+            puts("False");
+        }
+        break;
+    
+    default:
+        dumpQueue(vm->queue);
+        RAISE_UNREACHABLE();
+    }
+
     free(printval->data);
     free(printval);
 }
@@ -68,8 +110,20 @@ void opData(VirtMachine* vm) {
     VmData* new = malloc(sizeof(VmData));
     enqueue(vm->queue, new, VMOP_DATA);
     new->type = *(vm->ip++);
-    new->data = *((u_int64_t*) vm->ip);
-    vm->ip += 8;
+    switch (new->type) {
+    case VMDT_INT:
+        new->data = *((u_int64_t*) vm->ip);
+        vm->ip += 8;
+        break;
+    case VMDT_BOOL:
+        new->data = *(vm->ip++);
+        break;
+    
+    default:
+        dumpQueue(vm->queue);
+        RAISE_UNREACHABLE();
+        break;
+    }
 }
 
 void opDo(VirtMachine* vm) {
@@ -89,6 +143,9 @@ void opDo(VirtMachine* vm) {
         break;
     case VMOP_MOD:
         execMod(vm);
+        break;
+    case VMOP_EQU:
+        execEqu(vm);
         break;
 
     case VMOP_DUMP:
