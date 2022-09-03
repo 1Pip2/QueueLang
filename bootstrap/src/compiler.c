@@ -142,6 +142,8 @@ ByteCode get_op(TokenType2 type) {
         return BC_REQ;
     case TKTYPE_DUP:
         return BC_DUP;
+    case TKTYPE_CPY:
+        return BC_CPY;
     
     default:
         printf("Unreachable in get_op\n");

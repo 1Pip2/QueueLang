@@ -1,2 +1,4 @@
 prog: [
+    5 cpy . req . req ;
+    5 dup . req . req ;
 ]

@@ -36,6 +36,7 @@ typedef enum TokenType2 {
     TKTYPE_DUMP,
     TKTYPE_REQ,
     TKTYPE_DUP,
+    TKTYPE_CPY,
 
     TKTYPE_COLON,
     TKTYPE_OBRACK,

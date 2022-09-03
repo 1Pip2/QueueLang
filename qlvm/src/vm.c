@@ -100,6 +100,11 @@ void opReq(VirtMachine* vm) {
 
 void opDup(VirtMachine* vm) {
     Qitem* front = queuePeek(vm->queue);
+    enqueue(vm->queue, front->data, front->type);
+}
+
+void opCpy(VirtMachine* vm) {
+    Qitem* front = queuePeek(vm->queue);
     VmData* data = NULL;
     if (front->type == VMOP_DATA) {
         data = copyData(front->data->type, front->data->data);
@@ -147,6 +152,8 @@ _Noreturn void vmInterpret(u_int8_t* code, VmOptions* options) {
 
         } else if (op == VMOP_DUP) { 
             opDup(vm);
+        } else if (op == VMOP_CPY) { 
+            opCpy(vm);
 
         } else if (op >= VMOP_ADD && op <= VMOP_EXIT) {    
             enqueue(vm->queue, NULL, op);
