@@ -74,7 +74,7 @@ if [] <br />
 if [] <br />
 endif
 
-This how can handle else if in QueueLang.
+This is how you can handle else if in QueueLang.
 
 
 ### Litterals

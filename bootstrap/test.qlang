@@ -1,12 +1,2 @@
 prog: [
-    % 8 5 + 4 1 ;
-    = req req do if [
-        . 5 do
-    ] > 5 10 do if [
-        . 4 do
-    ]
-    
-    . 8 do
-
-    endif
 ]
