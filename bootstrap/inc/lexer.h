@@ -14,6 +14,8 @@ typedef enum TokenType2 {
     TKTYPE_ID,
     
     TKTYPE_FUN,
+    TKTYPE_IF,
+    TKTYPE_ENDIF,
     TKTYPE_PROG,
 
     TKTYPE_DO,

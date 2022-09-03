@@ -1,4 +1,12 @@
 prog: [
-    . { 6 -6 0 7 10 } do
-    { True False False } dup . req . req do do
+    % 8 5 + 4 1 ;
+    = req req do if [
+        . 5 do
+    ] > 5 10 do if [
+        . 4 do
+    ]
+    
+    . 8 do
+
+    endif
 ]

@@ -11,6 +11,9 @@ typedef struct Compiler {
     char* outputfile;
 
     char progdef;
+    char endif;
+    u_int64_t* ifrets;
+    size_t ifret_num;
 } Compiler;
 
 void eofError(Token* token) {
@@ -28,6 +31,19 @@ Token* safePop(Compiler* compiler) {
     return token;
 }
 
+long getFileLen(char* filename) {
+    FILE *fp = fopen(filename, "rb");
+    if (fp == NULL) {
+        printf("Error: Unable to open '%s'\n", filename);
+        exit(1);
+    }
+
+    fseek(fp, 0, SEEK_END);
+    long len = ftell(fp);
+    fclose(fp);
+    return len;
+}
+
 void appendByte(char* filename, u_int8_t byte) {
     FILE* fp = fopen(filename, "a");
     if (fp == NULL) {
@@ -42,6 +58,24 @@ void appendByte(char* filename, u_int8_t byte) {
 void appendQuad(char* filename, u_int64_t data) {
     for (size_t i = 0; i < 8; i++) {
         appendByte(filename, (data >> i * 8) & 0xFF);
+    }
+}
+
+void setByte(char* filename, u_int8_t byte, size_t pos) {
+    FILE *fp = fopen(filename, "r+");
+    if (fp == NULL) {
+        printf("Error: Unable to create or edit '%s'\n", filename);
+        exit(1);
+    }
+
+    fseek(fp, pos, SEEK_SET);
+    fprintf(fp, "%c", byte);
+    fclose(fp);
+}
+
+void setQuad(char* filename, u_int64_t data, size_t pos) {
+    for (size_t i = 0; i < 8; i++) {
+        setByte(filename, (data >> i * 8) & 0xFF, pos + i);
     }
 }
 
@@ -115,6 +149,7 @@ ByteCode get_op(TokenType2 type) {
     }
 }
 
+void compileBody(Compiler*);
 void compileLit(Compiler* compiler) {
     switch (compiler->curr->type2) {
     case TKTYPE_INT:
@@ -135,6 +170,43 @@ void compileLit(Compiler* compiler) {
     default:
         printf("Unreachable in compileLit\n");
     }
+}
+
+void compileIfStatement(Compiler* compiler) {
+    if (compiler->endif) {  // if this is an elif statement
+        compiler->endif = 0;  // prevent error in recursive compileBody
+        compiler->ifrets = realloc(compiler->ifrets, (++compiler->ifret_num) * sizeof(u_int64_t));
+    } else {
+        compiler->ifrets = malloc(sizeof(u_int64_t));
+        compiler->ifret_num = 1;
+    }
+
+    appendByte(compiler->outputfile, BC_JMPNIF);
+    size_t ifpos = getFileLen(compiler->outputfile);
+    appendQuad(compiler->outputfile, 0);
+    
+    compileBody(compiler);
+
+    appendByte(compiler->outputfile, BC_JMP);
+    size_t ifret = getFileLen(compiler->outputfile);
+    appendQuad(compiler->outputfile, 0);
+    
+    setQuad(compiler->outputfile, ifret + 8, ifpos);  // jump to else
+    compiler->endif = 1;
+    compiler->ifrets[compiler->ifret_num - 1] = ifret;
+}
+
+void compileEndIfStatement(Compiler* compiler) {
+    if (compiler->endif == 0) {
+        PRINT_DEBUG(compiler->curr);
+        printf("SyntaxError: endif without if");
+        exit(1);
+    }
+
+    for (size_t i = 0; i < compiler->ifret_num; i++) {
+        setQuad(compiler->outputfile, getFileLen(compiler->outputfile), compiler->ifrets[i]);
+    }    
+    compiler->endif = 0;
 }
 
 void compileArrayLit(Compiler* compiler) {
@@ -158,11 +230,21 @@ void compileBody(Compiler* compiler) {
             compileLit(compiler);
         } else if (compiler->curr->type2 == TKTYPE_OBRACE) {
             compileArrayLit(compiler);
+        } else if (compiler->curr->type2 == TKTYPE_IF) {
+            compileIfStatement(compiler);
+        } else if (compiler->curr->type2 == TKTYPE_ENDIF) {
+            compileEndIfStatement(compiler);
         } else {
             PRINT_DEBUG(compiler->curr);
             printf("SyntaxError\n");
             exit(1);
         }
+    }
+
+    if (compiler->endif) {
+        PRINT_DEBUG(compiler->curr);
+        printf("SyntaxError: Expected endif\n");
+        exit(1);
     }
 }
 

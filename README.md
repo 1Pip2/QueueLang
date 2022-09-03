@@ -60,6 +60,23 @@ Queue:
 - 'req' moves the front element of the queue to the back
 - 'dup' will enqueue a copy of the front element in the queue
 
+### If-statements
+> if [<br />
+  &emsp;\<code>  
+] <br />
+  &emsp;\<code><br />
+endif
+
+The if operation expects a Boolean at the front of the queue. If it is True is executes the code within the brackets and jumps to the endif. If it is False it executes the code after the closing bracket. Note that a endif can be used by multiple If-statements.
+
+> if [] <br />
+if [] <br />
+if [] <br />
+endif
+
+This how can handle else if in QueueLang.
+
+
 ### Litterals
 - Int: 0, 5, -4, 100, ...
 - Bool: True, False

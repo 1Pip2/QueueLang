@@ -69,6 +69,22 @@ void opDo(VirtMachine* vm) {
     free(op);
 }
 
+void opJmp(VirtMachine*, u_int8_t*);
+void opJmpNif(VirtMachine* vm, u_int8_t* base) {
+    Qitem* bool = dequeue(vm->queue);
+    expectQitemDt(vm, bool, VMDT_BOOL);
+    if (bool->data->data == 0) {
+        opJmp(vm, base);
+    } else {
+        vm->ip += 8;
+    }
+}
+
+void opJmp(VirtMachine* vm, u_int8_t* base) {
+    u_int64_t offset = *((u_int64_t*) vm->ip);
+    vm->ip = base + offset;
+}
+
 void opReq(VirtMachine* vm) {
     Qitem* front = dequeue(vm->queue);
     front->last = NULL;
@@ -81,6 +97,7 @@ void opReq(VirtMachine* vm) {
         vm->queue->back = front;
     }
 }
+
 void opDup(VirtMachine* vm) {
     Qitem* front = queuePeek(vm->queue);
     VmData* data = NULL;
@@ -90,6 +107,7 @@ void opDup(VirtMachine* vm) {
 
     enqueue(vm->queue, data, front->type);
 }
+
 
 VirtMachine* vmInit(u_int8_t* code) {
     VirtMachine* new = malloc(sizeof(VirtMachine));
@@ -118,6 +136,12 @@ _Noreturn void vmInterpret(u_int8_t* code, VmOptions* options) {
             for (; vm->op_count > 0; vm->op_count--) {
                 opDo(vm);
             }
+
+        } else if (op == VMOP_JMPNIF) {
+            opJmpNif(vm, code);
+        } else if (op == VMOP_JMP) {
+            opJmp(vm, code);
+
         } else if (op == VMOP_REQ) { 
             opReq(vm);
 

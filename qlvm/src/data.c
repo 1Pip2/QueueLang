@@ -137,7 +137,7 @@ void expectQitemDt(VirtMachine* vm, Qitem* qitem, VmDataType expected) {
         RAISE_TYPE();
     }
 
-    if (qitem->type != expected) {
+    if (qitem->data->type != expected) {
         dumpQueue(vm->queue);
         printf("TypeError: Expected ");
         printDataType(expected);
