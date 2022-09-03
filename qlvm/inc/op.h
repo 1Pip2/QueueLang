@@ -18,13 +18,11 @@ new->type = restype; \
 new->data = op1->data->data operation op2->data->data; \
 enqueue(vm->queue, new, VMOP_DATA); \
 \
-freeData(op1->data); \
-freeData(op2->data); \
 free(op1); \
 free(op2);
 
-#define MATHOP(operation) STDOP(VMDT_INT, VMDT_INT, VMDT_INT, operation);
-#define COMPOP(operation) STDOP(VMDT_INT, VMDT_INT, VMDT_BOOL, operation);
+#define MATHOP(operation) STDOP(INTDT, INTDT, INTDT, operation);
+#define COMPOP(operation) STDOP(INTDT, INTDT, BOOLDT, operation);
 
 void execAdd(struct VirtMachine*);
 void execSub(struct VirtMachine*);

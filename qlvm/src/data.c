@@ -4,19 +4,25 @@
 #include "data.h"
 #include "errors.h"
 
-VmArray* initArray(VirtMachine* vm) {
+VmArray* initArray(VirtMachine* vm, VmData* data) {
     VmArray* array = malloc(sizeof(VmArray));
-    array->data = NULL;
+    array->values = NULL;
     array->size = 0;
 
+    VmData* curr;
     while (*(vm->ip++) != ARRAYEND) {
-        array->data = realloc(array->data, (++array->size) * sizeof(VmData*));
-        array->data[array->size - 1] = initData(vm);
+        array->values = realloc(array->values, (++array->size) * sizeof(u_int64_t));
+        curr = initData(vm);
+
+        array->values[array->size - 1] = curr->data;
+
         if (array->size == 1) {
-            array->type = array->data[0]->type;
+            data->type.array_deph += curr->type.array_deph;
+            data->type.type = curr->type.type;
         } else {
-            expectDt(vm, array->data[array->size - 1]->type, array->type);
+            expectDt(vm, curr->type, (VmDataType) {data->type.type, data->type.array_deph - 1});
         }
+        free(curr);
     }
 
     return array;
@@ -24,9 +30,11 @@ VmArray* initArray(VirtMachine* vm) {
 
 VmData* initData(VirtMachine* vm) {
     VmData* new = malloc(sizeof(VmData));
-    new->type = *(vm->ip++);
+    VmBaseType base_type = *(vm->ip++);
 
-    switch (new->type) {
+    new->type.array_deph = 0;
+    new->type.type = base_type;
+    switch (base_type) {
     case VMDT_INT:
         new->data = *((u_int64_t*) vm->ip);
         vm->ip += 8;
@@ -35,7 +43,8 @@ VmData* initData(VirtMachine* vm) {
         new->data = *(vm->ip++);
         break;
     case VMDT_ARRAY:
-        new->data = (u_int64_t) initArray(vm);
+        new->type.array_deph++;
+        new->data = (u_int64_t) initArray(vm, new);
         break;
     
     default:
@@ -47,69 +56,85 @@ VmData* initData(VirtMachine* vm) {
     return new;
 }
 
-VmData* copyData(VmData* data) {
+VmData* copyData(VmDataType type, u_int64_t data) {
     VmData* new = malloc(sizeof(VmData));
-    if (data->type == VMDT_ARRAY) {
+    if (type.array_deph > 0) {
         VmArray* array = malloc(sizeof(VmArray));
-        VmArray* old_array = (void*) data->data;
+        VmArray* old_array = (void*) data;
 
         new->data = (u_int64_t) array;
         array->size = old_array->size;
-        array->type = old_array->type;
-        array->data = NULL;
+        array->values = NULL;
+
+        VmDataType elementtype = type;
+        elementtype.array_deph--;
+        VmData* curr;
         for (size_t i = 0; i < old_array->size; i++) {
-            array->data = realloc(array->data, (i + 1) * sizeof(VmData*));
-            array->data[i] = copyData(old_array->data[i]);
+            curr = copyData(elementtype, old_array->values[i]);
+            array->values = realloc(array->values, (i + 1) * sizeof(u_int64_t));
+            array->values[i] = curr->data;
+            free(curr);
         }
         
     } else {
-        new->data = data->data;
+        new->data = data;
     }
 
-    new->type = data->type;
+    new->type = type;
     return new;
 }
 
-void printData(VmData* data) {
-     switch (data->type) {
-     case VMDT_INT:
-        printf("%ld", data->data);
-        break;
-     case VMDT_BOOL:
-        if (data->data) {
-            printf("True");
-        } else {
-            printf("False");
-        }
-        break;
-     case VMDT_ARRAY:
-        VmArray* array = (void*) data->data;
+void printData(VmDataType type, u_int64_t data) {
+    if (type.array_deph > 0) {
+        VmArray* array = (void*) data;
         printf("{");
+
+        VmDataType elementtype = type;
+        elementtype.array_deph--;
         for (size_t i = 0; i < array->size; i++) {
-            printData(array->data[i]);
+            printData(elementtype, array->values[i]);
             if (i < array->size - 1) {
                 printf(" ");
             }
         }
         printf("}");
+        return;
+    }
+
+    switch (type.type) {
+    case VMDT_INT:
+        printf("%ld", data);
         break;
-     
-     default:
+    case VMDT_BOOL:
+        if (data) {
+            printf("True");
+        } else {
+            printf("False");
+        }
+        break;
+    
+    default:
         RAISE_UNREACHABLE();
         break;
-     }
+    }
 }
 
 void printDataType(VmDataType type) {
-     switch (type) {
+    if (type.array_deph > 0) {
+        printf("[");
+        VmDataType elementtype = type;
+        elementtype.array_deph--;
+        printDataType(elementtype);
+        printf("]");
+        return;
+    }
+
+     switch (type.type) {
      case VMDT_INT:
         printf("Int");
         break;
      case VMDT_BOOL:
         printf("Bool");
-        break;
-     case VMDT_ARRAY:
-        printf("Array");
         break;
      
      default:
@@ -119,7 +144,7 @@ void printDataType(VmDataType type) {
 }
 
 void expectDt(VirtMachine* vm, VmDataType type, VmDataType expected) {
-    if (type != expected) {
+    if (type.type != expected.type || type.array_deph != expected.array_deph) {
         dumpQueue(vm->queue);
         printf("TypeError: Expected ");
         printDataType(expected);
@@ -137,24 +162,5 @@ void expectQitemDt(VirtMachine* vm, Qitem* qitem, VmDataType expected) {
         RAISE_TYPE();
     }
 
-    if (qitem->data->type != expected) {
-        dumpQueue(vm->queue);
-        printf("TypeError: Expected ");
-        printDataType(expected);
-        printf(". Found ");
-        printDataType(qitem->data->type);
-        puts("");
-        RAISE_TYPE();
-    }
-}
-
-void freeData(VmData* data) {
-    if (data->type == VMDT_ARRAY) {
-        VmArray* array = (void*) data->data;
-        for (size_t i = 0; i < array->size; i++) {
-            freeData(array->data[i]);
-        }
-    }
-
-    free(data);
+    expectDt(vm, qitem->data->type, expected);
 }

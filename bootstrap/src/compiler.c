@@ -150,6 +150,7 @@ ByteCode get_op(TokenType2 type) {
 }
 
 void compileBody(Compiler*);
+void compileArrayLit(Compiler*);
 void compileLit(Compiler* compiler) {
     switch (compiler->curr->type2) {
     case TKTYPE_INT:
@@ -166,6 +167,9 @@ void compileLit(Compiler* compiler) {
         appendByte(compiler->outputfile, BC_DATA);
         appendByte(compiler->outputfile, DT_BOOL);
         appendByte(compiler->outputfile, 0);
+        break;
+    case TKTYPE_OBRACE:
+        compileArrayLit(compiler);
         break;
     default:
         printf("Unreachable in compileLit\n");

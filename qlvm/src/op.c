@@ -44,16 +44,15 @@ void execDump(VirtMachine* vm) {
         RAISE_INVALID_ARG();
     }
 
-    printData(printval->data);
+    printData(printval->data->type, printval->data->data);
     puts("");
 
-    freeData(printval->data);
     free(printval);
 }
 
 
 void execExit(VirtMachine* vm) {
     Qitem* retval = dequeue(vm->queue);
-    expectQitemDt(vm, retval, VMDT_INT);
+    expectQitemDt(vm, retval, INTDT);
     exit(retval->data->data);
 } 

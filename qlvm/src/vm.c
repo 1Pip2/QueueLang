@@ -72,7 +72,7 @@ void opDo(VirtMachine* vm) {
 void opJmp(VirtMachine*, u_int8_t*);
 void opJmpNif(VirtMachine* vm, u_int8_t* base) {
     Qitem* bool = dequeue(vm->queue);
-    expectQitemDt(vm, bool, VMDT_BOOL);
+    expectQitemDt(vm, bool, BOOLDT);
     if (bool->data->data == 0) {
         opJmp(vm, base);
     } else {
@@ -102,7 +102,7 @@ void opDup(VirtMachine* vm) {
     Qitem* front = queuePeek(vm->queue);
     VmData* data = NULL;
     if (front->type == VMOP_DATA) {
-        data = copyData(front->data);
+        data = copyData(front->data->type, front->data->data);
     }
 
     enqueue(vm->queue, data, front->type);
