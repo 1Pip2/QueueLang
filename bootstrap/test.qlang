@@ -1,16 +1,7 @@
 prog: [
-    set(a) 1 do
-    let(b) 100 do
-
-    let(d) 10 do
-    while [<= a b do] [
-        . a do
-        + a 1 set(a) ;
-
-        set(c) 1 do
-        while [<= c d do] [
-            . c do
-            + c 1 set(c) ;
-        ]
+    False if [
+        set(a) 10 do
     ]
+    . a do
+    endif
 ]

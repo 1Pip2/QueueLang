@@ -18,9 +18,11 @@ void opVar(VirtMachine* vm) {
     vm->ip += 8;
 
     if (vm->var_num <= index) {
+        dumpQueue(vm->queue);
         printf("Error: Undefined variable\n");
         RAISE_COMMON();
     } else if (vm->vars[index]->present == 0) {
+        dumpQueue(vm->queue);
         printf("Error: Undefined variable\n");
         RAISE_COMMON();
     }

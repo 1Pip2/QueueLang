@@ -63,6 +63,7 @@ void execSet(VirtMachine* vm, u_int8_t writeable, u_int64_t index) {
         vm->vars[index]->writeable = writeable;
     } else {
          if (vm->vars[index]->writeable == 0) {
+            dumpQueue(vm->queue);
             printf("TypeError: Cannot 'set' constant variable\n");
             RAISE_TYPE();
          }
@@ -70,6 +71,7 @@ void execSet(VirtMachine* vm, u_int8_t writeable, u_int64_t index) {
         
     Qitem* vardata = dequeue(vm->queue);
     if (vardata->type != VMOP_DATA) {
+        dumpQueue(vm->queue);
         printf("TypeError: Expected type 'data'\n");
         RAISE_TYPE();
     }
