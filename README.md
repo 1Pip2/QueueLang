@@ -52,7 +52,7 @@ Queue:
 - 'rm' removes the element at the front of the queue
 
 ### Variables
-'set(\<identifier>)' sets that varaible name to the value a the front of the queue.
+'set(\<identifier>)' sets that identifier to the value at the front of the queue.
 To modifiy the value of a varialbe simply use 'set' again.
 'let' defines a constant and trying to 'set' a constant will result in an error.
 To use a variable, type the name of said variable(\<identifier>). This will enqueue the variable value.
@@ -70,17 +70,17 @@ endif
 
 The if keyword expects a Boolean at the front of the queue. If it is True is executes the code within the brackets and jumps to the endif. If it is False it executes the code after the closing bracket. Note that a endif can be used by multiple If-statements.
 
-> if [] <br />
-if [] <br />
-if [] <br />
+> if [ \<code> ] <br />
+if [ \<code> ] <br />
+if [ \<code> ] <br />
 endif
 
 This is how you can handle else if in QueueLang.
 
 ### While-loops
-> while [] []
+> while [ \<code> ] [ \<code> ]
 
-The while keyword executes the first body. This must result in a bool a the front of the queue. If it is True, the second body gets executed and the process repeats. If it False the second body gets skiped and execution of the program continues.
+The while keyword executes the first body. It then expects a bool a the front of the queue. If it is True, the second body gets executed and execution jumps back to the start of the while-statement. If it is False the second body gets skiped and execution of the program continues.
 
 
 ### Litterals
