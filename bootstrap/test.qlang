@@ -1,4 +1,9 @@
 prog: [
-    {{ 0 1 4 } { 6 }} cpy . req . req ;
-    { -3 6 } dup . req . req ;
+    10 while [>= dup 0 req do req] [
+        . dup req do
+        - req 1 do
+    ]
+    
+    rm
 ]
+

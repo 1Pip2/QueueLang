@@ -60,6 +60,7 @@ Queue:
 - 'req' moves the front element of the queue to the back
 - 'dup' will enqueue a copy of the reference to the front element in the queue
 - 'cpy' will enqueue a copy of the front element in the queue
+- 'rm' removes the element at the front of the queue
 
 ### If-statements
 > if [<br />
@@ -68,7 +69,7 @@ Queue:
   &emsp;\<code><br />
 endif
 
-The if operation expects a Boolean at the front of the queue. If it is True is executes the code within the brackets and jumps to the endif. If it is False it executes the code after the closing bracket. Note that a endif can be used by multiple If-statements.
+The if keyword expects a Boolean at the front of the queue. If it is True is executes the code within the brackets and jumps to the endif. If it is False it executes the code after the closing bracket. Note that a endif can be used by multiple If-statements.
 
 > if [] <br />
 if [] <br />
@@ -76,6 +77,11 @@ if [] <br />
 endif
 
 This is how you can handle else if in QueueLang.
+
+### While-loops
+> while [] []
+
+The while keyword executes the first body. This must result in a bool a the front of the queue. If it is True, the second body gets executed and the process repeats. If it False the second body gets skiped and execution of the program continues.
 
 
 ### Litterals

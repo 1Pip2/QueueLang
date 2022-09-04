@@ -16,6 +16,7 @@ typedef enum TokenType2 {
     TKTYPE_FUN,
     TKTYPE_IF,
     TKTYPE_ENDIF,
+    TKTYPE_WHILE,
     TKTYPE_PROG,
 
     TKTYPE_DO,
@@ -37,6 +38,7 @@ typedef enum TokenType2 {
     TKTYPE_REQ,
     TKTYPE_DUP,
     TKTYPE_CPY,
+    TKTYPE_RM,
 
     TKTYPE_COLON,
     TKTYPE_OBRACK,

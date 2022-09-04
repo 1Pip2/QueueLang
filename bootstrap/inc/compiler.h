@@ -28,6 +28,7 @@ typedef enum ByteCode {
     BC_REQ,
     BC_DUP,
     BC_CPY,
+    BC_RM,
     
     BC_EXIT,
     ENDARRAY,

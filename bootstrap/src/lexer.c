@@ -137,6 +137,9 @@ void appendIdentifier(Lexer* lexer, char* str) {
     } else if (strcmp(str, "endif") == 0) {
         tkQueueAppend(lexer, _TKTYPE_KEYWORD, TKTYPE_ENDIF, NULL, 0);
         free(str);
+    } else if (strcmp(str, "while") == 0) {
+        tkQueueAppend(lexer, _TKTYPE_KEYWORD, TKTYPE_WHILE, NULL, 0);
+        free(str);
 
     } else if (strcmp(str, "do") == 0) {
         tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_DO, NULL, 0);
@@ -149,6 +152,9 @@ void appendIdentifier(Lexer* lexer, char* str) {
         free(str);
     } else if (strcmp(str, "cpy") == 0) {
         tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_CPY, NULL, 0);
+        free(str);
+    } else if (strcmp(str, "rm") == 0) {
+        tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_RM, NULL, 0);
         free(str);
 
     } else if (strcmp(str, "True") == 0) {

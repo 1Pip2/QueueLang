@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "op.h"
+#include "gc.h"
 #include "data.h"
 #include "errors.h"
 
@@ -55,4 +56,4 @@ void execExit(VirtMachine* vm) {
     Qitem* retval = dequeue(vm->queue);
     expectQitemDt(vm, retval, INTDT);
     exit(retval->data->data);
-} 
+}

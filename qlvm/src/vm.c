@@ -114,6 +114,10 @@ void opCpy(VirtMachine* vm) {
     enqueue(vm->queue, data, front->type);
 }
 
+void opRm(VirtMachine* vm) {
+    free(dequeue(vm->queue));
+}
+
 
 VirtMachine* vmInit(u_int8_t* code) {
     VirtMachine* new = malloc(sizeof(VirtMachine));
@@ -159,6 +163,8 @@ _Noreturn void vmInterpret(u_int8_t* code, VmOptions* options) {
             opDup(vm);
         } else if (op == VMOP_CPY) { 
             opCpy(vm);
+        } else if (op == VMOP_RM) { 
+            opRm(vm);
 
         } else if (op >= VMOP_ADD && op <= VMOP_EXIT) {    
             enqueue(vm->queue, NULL, op);

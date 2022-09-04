@@ -30,6 +30,7 @@ typedef enum VmOp {
     VMOP_REQ,
     VMOP_DUP,
     VMOP_CPY,
+    VMOP_RM,
 
     VMOP_EXIT,
     ARRAYEND,

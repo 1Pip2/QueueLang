@@ -144,6 +144,8 @@ ByteCode get_op(TokenType2 type) {
         return BC_DUP;
     case TKTYPE_CPY:
         return BC_CPY;
+    case TKTYPE_RM:
+        return BC_RM;
     
     default:
         printf("Unreachable in get_op\n");
@@ -215,6 +217,21 @@ void compileEndIfStatement(Compiler* compiler) {
     compiler->endif = 0;
 }
 
+void compileWhileStatement(Compiler* compiler) {
+    size_t start_while = getFileLen(compiler->outputfile);
+    compileBody(compiler);
+
+    appendByte(compiler->outputfile, BC_JMPNIF);
+    size_t end_while = getFileLen(compiler->outputfile);
+    appendQuad(compiler->outputfile, 0);
+
+    compileBody(compiler);
+    appendByte(compiler->outputfile, BC_JMP);
+    appendQuad(compiler->outputfile, start_while);
+    
+    setQuad(compiler->outputfile, getFileLen(compiler->outputfile), end_while);
+}
+
 void compileArrayLit(Compiler* compiler) {
         appendByte(compiler->outputfile, BC_DATA);
         appendByte(compiler->outputfile, DT_ARRAY);
@@ -240,6 +257,8 @@ void compileBody(Compiler* compiler) {
             compileIfStatement(compiler);
         } else if (compiler->curr->type2 == TKTYPE_ENDIF) {
             compileEndIfStatement(compiler);
+        } else if (compiler->curr->type2 == TKTYPE_WHILE) {
+            compileWhileStatement(compiler);
         } else {
             PRINT_DEBUG(compiler->curr);
             printf("SyntaxError\n");
