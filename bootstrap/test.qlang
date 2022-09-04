@@ -1,7 +1,4 @@
 prog: [
-    False if [
-        set(a) 10 do
-    ]
-    . a do
-    endif
+    set(a) {{5 10 -3 0} {8 0 3} {34 2 9}} do
+	. a do
 ]

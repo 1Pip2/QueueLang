@@ -183,6 +183,21 @@ void compileLit(Compiler* compiler) {
     }
 }
 
+void compileArrayLit(Compiler* compiler) {
+        appendByte(compiler->outputfile, BC_DATA);
+        appendByte(compiler->outputfile, DT_ARRAY);
+
+        while ((compiler->curr = safePop(compiler))->type2 != TKTYPE_CBRACE) {
+            if (compiler->curr->type1 == _TKTYPE_LIT || compiler->curr->type2 == TKTYPE_OBRACE) {
+                compileLit(compiler);
+            } else {
+                expectPrimeType(compiler->curr, _TKTYPE_LIT);
+            }
+        }
+        appendByte(compiler->outputfile, ENDARRAY);
+}
+
+
 void compileIfStatement(Compiler* compiler) {
     if (compiler->endif) {  // if this is an elif statement
         compiler->endif = 0;  // prevent error in recursive compileBody
@@ -233,16 +248,6 @@ void compileWhileStatement(Compiler* compiler) {
     appendQuad(compiler->outputfile, start_while);
     
     setQuad(compiler->outputfile, getFileLen(compiler->outputfile), end_while);
-}
-
-void compileArrayLit(Compiler* compiler) {
-        appendByte(compiler->outputfile, BC_DATA);
-        appendByte(compiler->outputfile, DT_ARRAY);
-
-        while ((compiler->curr = safePop(compiler))->type2 != TKTYPE_CBRACE) {
-            compileLit(compiler);
-        }
-        appendByte(compiler->outputfile, ENDARRAY);
 }
 
 int64_t findVar(char* var, char** vars, size_t var_num) {
