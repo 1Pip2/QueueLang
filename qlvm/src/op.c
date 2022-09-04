@@ -72,8 +72,7 @@ void execSet(VirtMachine* vm, u_int8_t writeable, u_int64_t index) {
     Qitem* vardata = dequeue(vm->queue);
     if (vardata->type != VMOP_DATA) {
         dumpQueue(vm->queue);
-        printf("TypeError: Expected type 'data'\n");
-        RAISE_TYPE();
+        RAISE_INVALID_ARG();
     }
 
     vm->vars[index]->data = vardata->data;

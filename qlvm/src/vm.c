@@ -16,15 +16,13 @@ void opData(VirtMachine* vm) {
 void opVar(VirtMachine* vm) {
     u_int64_t index = *((u_int64_t*) vm->ip);
     vm->ip += 8;
-
+    
     if (vm->var_num <= index) {
         dumpQueue(vm->queue);
-        printf("Error: Undefined variable\n");
-        RAISE_COMMON();
+        RAISE_UNDEFINED();
     } else if (vm->vars[index]->present == 0) {
         dumpQueue(vm->queue);
-        printf("Error: Undefined variable\n");
-        RAISE_COMMON();
+        RAISE_UNDEFINED();
     }
 
     enqueue(vm->queue, vm->vars[index]->data, VMOP_DATA);
