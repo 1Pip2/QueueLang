@@ -58,7 +58,7 @@ Queue:
 - ';' countes all enqueued operations and executes the front of the queue that many times 
 - 'do' executes the front of the queue
 - 'req' moves the front element of the queue to the back
-- 'dup' will enqueue a copy the reference to the front element in the queue
+- 'dup' will enqueue a copy of the reference to the front element in the queue
 - 'cpy' will enqueue a copy of the front element in the queue
 
 ### If-statements

@@ -3,6 +3,7 @@
 
 #include "vm.h"
 #include "op.h"
+#include "gc.h"
 #include "data.h"
 #include "errors.h"
 #include "queue.h"
@@ -123,6 +124,7 @@ VirtMachine* vmInit(u_int8_t* code) {
 
 _Noreturn void vmInterpret(u_int8_t* code, VmOptions* options) {
     VirtMachine* vm = vmInit(code);
+    gcInit();
 
     VmOp op;
     while (1) {
@@ -130,6 +132,9 @@ _Noreturn void vmInterpret(u_int8_t* code, VmOptions* options) {
             dumpQueue(vm->queue);
         }
 
+        markQueue(vm->queue);
+        sweep();
+        
         op = *(vm->ip++);
         if (op == VMOP_DATA) {
             opData(vm);

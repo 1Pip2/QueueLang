@@ -1,4 +1,4 @@
 prog: [
-    5 cpy . req . req ;
-    5 dup . req . req ;
+    {{ 0 1 4 } { 6 }} cpy . req . req ;
+    { -3 6 } dup . req . req ;
 ]
