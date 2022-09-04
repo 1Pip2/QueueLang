@@ -5,6 +5,7 @@
 
 typedef enum ByteCode {
     BC_DATA,
+    BC_VAR,
     
     BC_DO,
     BC_DOALL,
@@ -29,6 +30,9 @@ typedef enum ByteCode {
     BC_DUP,
     BC_CPY,
     BC_RM,
+
+    BC_LET,
+    BC_SET,
     
     BC_EXIT,
     ENDARRAY,

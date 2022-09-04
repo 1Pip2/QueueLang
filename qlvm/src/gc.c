@@ -112,6 +112,14 @@ void markQueue(Queue* queue) {
     }
 }
 
+void markVars(VmVar** vars, size_t var_num) {
+    for (size_t i = 0; i < var_num; i++) {
+        if (vars[i]->present) {
+            markData(vars[i]->data);
+        }
+    }
+}
+
 void sweep(void) {
     HeapFragment* last = NULL;
     HeapFragment* curr = gc->head;

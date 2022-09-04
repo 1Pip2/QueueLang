@@ -85,6 +85,10 @@ char* strQitem(Qitem* op) {
     
     case VMOP_DUMP:
         return ".";
+    case VMOP_SET:
+        return "set";
+    case VMOP_LET:
+        return "let";
     
     case VMOP_EXIT:
         return "exit";

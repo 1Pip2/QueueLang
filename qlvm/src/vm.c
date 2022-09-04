@@ -13,6 +13,21 @@ void opData(VirtMachine* vm) {
     enqueue(vm->queue, initData(vm), VMOP_DATA);
 }
 
+void opVar(VirtMachine* vm) {
+    u_int64_t index = *((u_int64_t*) vm->ip);
+    vm->ip += 8;
+
+    if (vm->var_num <= index) {
+        printf("Error: Undefined variable\n");
+        RAISE_COMMON();
+    } else if (vm->vars[index]->present == 0) {
+        printf("Error: Undefined variable\n");
+        RAISE_COMMON();
+    }
+
+    enqueue(vm->queue, vm->vars[index]->data, VMOP_DATA);
+}
+
 void opDo(VirtMachine* vm) {
     Qitem* op = dequeue(vm->queue);
     switch (op->type) {
@@ -50,6 +65,13 @@ void opDo(VirtMachine* vm) {
 
     case VMOP_DUMP:
         execDump(vm);
+        break;
+
+    case VMOP_SET:
+        execSet(vm, 1, (u_int64_t) op->data);
+        break;
+    case VMOP_LET:
+        execSet(vm, 0, (u_int64_t) op->data);
         break;
 
     case VMOP_EXIT:
@@ -118,11 +140,20 @@ void opRm(VirtMachine* vm) {
     free(dequeue(vm->queue));
 }
 
+void opSet(VirtMachine* vm, VmOp op) {
+    enqueue(vm->queue, (void*) *((u_int64_t*) vm->ip), op);
+    vm->ip += 8;
+    vm->op_count++;
+}
 
 VirtMachine* vmInit(u_int8_t* code) {
     VirtMachine* new = malloc(sizeof(VirtMachine));
     new->ip = code;
     new->queue = queueInit();
+    new->op_count = 0;
+
+    new->vars = NULL;
+    new->var_num = 0;
     return new;
 }
 
@@ -137,11 +168,14 @@ _Noreturn void vmInterpret(u_int8_t* code, VmOptions* options) {
         }
 
         markQueue(vm->queue);
+        markVars(vm->vars, vm->var_num);
         sweep();
         
         op = *(vm->ip++);
         if (op == VMOP_DATA) {
             opData(vm);
+        } else if (op == VMOP_VAR) {
+            opVar(vm);
 
         } else if (op == VMOP_DO) {
             opDo(vm);
@@ -165,6 +199,9 @@ _Noreturn void vmInterpret(u_int8_t* code, VmOptions* options) {
             opCpy(vm);
         } else if (op == VMOP_RM) { 
             opRm(vm);
+
+        } else if (op == VMOP_SET || op == VMOP_LET) { 
+            opSet(vm, op);
 
         } else if (op >= VMOP_ADD && op <= VMOP_EXIT) {    
             enqueue(vm->queue, NULL, op);

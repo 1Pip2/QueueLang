@@ -37,6 +37,7 @@ void execGreaterEqu(struct VirtMachine*);
 void execLessEqu(struct VirtMachine*);
 
 void execDump(struct VirtMachine*);
+void execSet(struct VirtMachine*, u_int8_t, u_int64_t);
 void execExit(struct VirtMachine*);
 
 #endif

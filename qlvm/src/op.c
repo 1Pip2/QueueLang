@@ -51,6 +51,31 @@ void execDump(VirtMachine* vm) {
     free(printval);
 }
 
+void execSet(VirtMachine* vm, u_int8_t writeable, u_int64_t index) {
+    while (vm->var_num <= index) {
+        vm->vars = realloc(vm->vars, (++vm->var_num) * sizeof(VmVar*));
+        vm->vars[vm->var_num - 1] = malloc(sizeof(VmVar));
+        vm->vars[vm->var_num - 1]->present = 0;
+    }
+
+    if (vm->vars[index]->present == 0) {
+        vm->vars[index]->present = 1;
+        vm->vars[index]->writeable = writeable;
+    } else {
+         if (vm->vars[index]->writeable == 0) {
+            printf("TypeError: Cannot 'set' constant variable\n");
+            RAISE_TYPE();
+         }
+    }
+        
+    Qitem* vardata = dequeue(vm->queue);
+    if (vardata->type != VMOP_DATA) {
+        printf("TypeError: Expected type 'data'\n");
+        RAISE_TYPE();
+    }
+
+    vm->vars[index]->data = vardata->data;
+}
 
 void execExit(VirtMachine* vm) {
     Qitem* retval = dequeue(vm->queue);

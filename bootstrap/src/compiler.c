@@ -14,6 +14,9 @@ typedef struct Compiler {
     char endif;
     u_int64_t* ifrets;
     size_t ifret_num;
+
+    char** vars;
+    size_t var_num;
 } Compiler;
 
 void eofError(Token* token) {
@@ -242,12 +245,69 @@ void compileArrayLit(Compiler* compiler) {
         appendByte(compiler->outputfile, ENDARRAY);
 }
 
+int64_t findVar(char* var, char** vars, size_t var_num) {
+    for (size_t i = 0; i < var_num; i++) {
+        if (strcmp(var, vars[i]) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+void compileIdentifier(Compiler* compiler) {
+    int64_t pos = findVar(compiler->curr->stringdata, compiler->vars, compiler->var_num);
+    if (pos != -1) {
+        appendByte(compiler->outputfile, BC_VAR);
+        appendQuad(compiler->outputfile, (u_int64_t) pos);
+    } else {
+        PRINT_DEBUG(compiler->curr);
+        printf("Error: '%s' is undefined\n", compiler->curr->stringdata);
+        exit(1);
+    }
+}
+
+void compileSetLet(Compiler* compiler) {
+    ByteCode bc;
+    switch (compiler->curr->type2) {
+    case TKTYPE_SET:
+        bc = BC_SET;
+        break;
+    case TKTYPE_LET:
+        bc = BC_LET;
+        break;
+    
+    default:
+        PRINT_DEBUG(compiler->curr);
+        printf("Error: Unreachable in compileSetLet\n");
+        exit(1);
+    }
+
+    appendByte(compiler->outputfile, bc);
+    compiler->curr = safePop(compiler);
+    expectSecType(compiler->curr, TKTYPE_OPAREN);
+
+    compiler->curr = safePop(compiler);
+    expectPrimeType(compiler->curr, TKTYPE_ID);
+    int64_t pos = findVar(compiler->curr->stringdata, compiler->vars, compiler->var_num);
+    if (pos == -1) {
+        pos = compiler->var_num;
+        compiler->vars = realloc(compiler->vars, (++compiler->var_num) * sizeof(char*));
+        compiler->vars[pos] = compiler->curr->stringdata;
+    }
+    appendQuad(compiler->outputfile, pos);
+
+
+    compiler->curr = safePop(compiler);
+    expectSecType(compiler->curr, TKTYPE_CPAREN);
+} 
+
 void compileBody(Compiler* compiler) {
     compiler->curr = safePop(compiler);
     expectSecType(compiler->curr, TKTYPE_OBRACK);
     
     while ((compiler->curr = safePop(compiler))->type2 != TKTYPE_CBRACK) {
-        if (compiler->curr->type1 == _TKTYPE_OP) {
+        if (compiler->curr->type2 == TKTYPE_SET || compiler->curr->type2 == TKTYPE_LET) {
+            compileSetLet(compiler);
+        } else if (compiler->curr->type1 == _TKTYPE_OP) {
             appendByte(compiler->outputfile, get_op(compiler->curr->type2));
         } else if (compiler->curr->type1 == _TKTYPE_LIT) {
             compileLit(compiler);
@@ -259,6 +319,8 @@ void compileBody(Compiler* compiler) {
             compileEndIfStatement(compiler);
         } else if (compiler->curr->type2 == TKTYPE_WHILE) {
             compileWhileStatement(compiler);
+        } else if (compiler->curr->type1 == _TKTYPE_ID) {
+            compileIdentifier(compiler);
         } else {
             PRINT_DEBUG(compiler->curr);
             printf("SyntaxError\n");
@@ -280,6 +342,10 @@ void compileProg(Compiler* compiler) {
         exit(1);
     }
     compiler->progdef = 1;
+
+    compiler->endif = 0;
+    compiler->vars = NULL;
+    compiler->var_num = 0;
 
     compiler->curr = safePop(compiler);
     expectSecType(compiler->curr, TKTYPE_COLON);

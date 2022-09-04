@@ -7,6 +7,7 @@
 
 typedef enum VmOp {
     VMOP_DATA,
+    VMOP_VAR,
     
     VMOP_DO,
     VMOP_DOALL,
@@ -32,15 +33,27 @@ typedef enum VmOp {
     VMOP_CPY,
     VMOP_RM,
 
+    VMOP_LET,
+    VMOP_SET,
+
     VMOP_EXIT,
     ARRAYEND,
 } VmOp;
+
+typedef struct VmVar {
+    VmData* data;
+    u_int8_t present;
+    u_int8_t writeable;
+} VmVar;
 
 struct Queue;
 typedef struct VirtMachine {
     u_int8_t* ip;
     u_int64_t op_count;
     struct Queue* queue;
+    
+    VmVar** vars;
+    size_t var_num;
 } VirtMachine;
 
 typedef struct VmOptions {

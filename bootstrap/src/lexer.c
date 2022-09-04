@@ -157,6 +157,13 @@ void appendIdentifier(Lexer* lexer, char* str) {
         tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_RM, NULL, 0);
         free(str);
 
+    } else if (strcmp(str, "let") == 0) {
+        tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_LET, NULL, 0);
+        free(str);
+    } else if (strcmp(str, "set") == 0) {
+        tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_SET, NULL, 0);
+        free(str);
+
     } else if (strcmp(str, "True") == 0) {
         tkQueueAppend(lexer, _TKTYPE_LIT, TKTYPE_TRUE, NULL, 0);
         free(str);
@@ -288,6 +295,12 @@ void lexChar(Lexer* lexer) {
             return;
         case '}':
             tkQueueAppend(lexer, _TKTYPE_SEPARATOR, TKTYPE_CBRACE, NULL, 0);
+            return;
+        case '(':
+            tkQueueAppend(lexer, _TKTYPE_SEPARATOR, TKTYPE_OPAREN, NULL, 0);
+            return;
+        case ')':
+            tkQueueAppend(lexer, _TKTYPE_SEPARATOR, TKTYPE_CPAREN, NULL, 0);
             return;
     }
 

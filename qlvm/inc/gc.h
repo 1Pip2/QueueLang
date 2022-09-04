@@ -20,6 +20,7 @@ void gcInit(void);
 void* gcMalloc(size_t);
 void* gcRealloc(void*, size_t);
 void markQueue(Queue*);
+void markVars(VmVar**, size_t);
 void sweep(void);
 
 

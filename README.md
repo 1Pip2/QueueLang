@@ -20,24 +20,12 @@ Then the ';' will count the number of operations(3 in this case) and will execut
 As you can see, the operands where dequeued and the result enqueued. Note that executing data will result in a runtime error.
 
 # Syntax
-### Functions
-A function has the following layout:<br />
-
->fun \<identifier>: \<identifier>, \<identifier>, ... [<br />
-&emsp;\<statement> \<statement> ...<br />
-]
-
-It is called using the 'call' operation:<br />
-> call \<identifier> do
-
-'call' will dequeue the function arguments one by one.<br />
-For example:
->call min 5 4 do
-
-Will result in 4 being enqueued.
+### Prog
+This is where the execution of the program starts
+> prog: [ \<code> ]
 
 ### Statements
-A statement is either an operation or a litteral.
+A statement is either an operation, keyword or a litteral.
 
 ### Operations
 Arithmetic:
@@ -61,6 +49,16 @@ Queue:
 - 'dup' will enqueue a copy of the reference to the front element in the queue
 - 'cpy' will enqueue a copy of the front element in the queue
 - 'rm' removes the element at the front of the queue
+
+### Variables
+'set(\<identifier>)' sets that varaible name to the value a the front of the queue.
+To modifiy the value of a varialbe simply use 'set' again.
+'let' defines a constant and trying to 'set' a constant will result in an error.
+To use a variable, type the name of said variable(\<identifier>). This will enqueue the variable value.
+> set(a) 5 do<br />
+> set(a) 4 do<br />
+. a do  
+This example code prints 4 to stdout.
 
 ### If-statements
 > if [<br />
