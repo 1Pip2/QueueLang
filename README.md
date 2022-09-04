@@ -1,5 +1,6 @@
 # QueueLang
 QueueLang is a language that is:
+  - A WORK IN PROGRESS!
   - Interpreted and compiles to bytecode AheadOfTime
   - 100% queue based at runtime
   - Is self-compiled whilst the VirtualMachine is written in c
