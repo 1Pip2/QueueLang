@@ -40,7 +40,7 @@ printf("QueueError: Dequeued empty queue\n");\
 exit(ERR_QUEUE);
 
 #define RAISE_UNDEFINED() \
-printf("NameError: Undefined variable\n");\
+printf("NameError: Undefined variable or function\n");\
 exit(ERR_NAME);
 
 #endif

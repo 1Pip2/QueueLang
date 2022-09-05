@@ -28,6 +28,14 @@ This is where the execution of the program starts
 ### Statements
 A statement is either an operation, keyword or a litteral.
 
+### Functions
+A function is called using the following syntax:
+> call(\<identifier>) \<arg1> \<arg2> ... do
+
+### Built in functions
+The following functions are built into the language:
+- 'get' arg1: array, arg2: int; returns arg1\[arg2]
+
 ### Operations
 Arithmetic:
 - '\+' will add the front two elements of the queue

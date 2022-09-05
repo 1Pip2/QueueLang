@@ -35,10 +35,15 @@ typedef enum VmOp {
 
     VMOP_LET,
     VMOP_SET,
+    VMOP_CALL,
 
     VMOP_EXIT,
     ARRAYEND,
 } VmOp;
+typedef enum VmBuiltIns {
+    BUILTIN_GET,
+} VmBuiltIns;
+
 
 typedef struct VmVar {
     VmData* data;

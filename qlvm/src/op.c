@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "op.h"
+#include "builtins.h"
 #include "gc.h"
 #include "data.h"
 #include "errors.h"
@@ -83,6 +84,18 @@ void execSet(VirtMachine* vm, u_int8_t writeable, u_int64_t index) {
     }
 
     vm->vars[index]->data = vardata->data;
+}
+
+void execCall(VirtMachine* vm, u_int64_t data) {
+    switch (data) {
+    case BUILTIN_GET:
+        builtinGet(vm);
+        break;
+    
+    default:
+        dumpQueue(vm->queue);
+        RAISE_UNDEFINED();
+    }
 }
 
 void execExit(VirtMachine* vm) {

@@ -114,6 +114,8 @@ void printData(VmDataType type, u_int64_t data) {
             printf("False");
         }
         break;
+    case VMDT_UNKNOWN:
+        break;
     
     default:
         RAISE_UNREACHABLE();
@@ -149,7 +151,7 @@ void printDataType(VmDataType type) {
 }
 
 void expectDt(VirtMachine* vm, VmDataType type, VmDataType expected) {
-    if (type.type == VMDT_UNKNOWN && type.array_deph == expected.array_deph) {
+    if (type.type == VMDT_UNKNOWN) {
         return;
     }
 

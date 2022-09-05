@@ -73,6 +73,9 @@ void opDo(VirtMachine* vm) {
     case VMOP_LET:
         execSet(vm, 0, (u_int64_t) op->data);
         break;
+    case VMOP_CALL:
+        execCall(vm, (u_int64_t) op->data);
+        break;
 
     case VMOP_EXIT:
         execExit(vm);
@@ -140,7 +143,7 @@ void opRm(VirtMachine* vm) {
     free(dequeue(vm->queue));
 }
 
-void opSet(VirtMachine* vm, VmOp op) {
+void opOpAndArg(VirtMachine* vm, VmOp op) {
     enqueue(vm->queue, (void*) *((u_int64_t*) vm->ip), op);
     vm->ip += 8;
     vm->op_count++;
@@ -201,8 +204,8 @@ _Noreturn void vmInterpret(u_int8_t* code, VmOptions* options) {
         } else if (op == VMOP_RM) { 
             opRm(vm);
 
-        } else if (op == VMOP_SET || op == VMOP_LET) { 
-            opSet(vm, op);
+        } else if (op == VMOP_SET || op == VMOP_LET || op == VMOP_CALL) { 
+            opOpAndArg(vm, op);
 
         } else if (op >= VMOP_ADD && op <= VMOP_EXIT) {    
             enqueue(vm->queue, NULL, op);

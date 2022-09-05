@@ -33,6 +33,7 @@ typedef enum ByteCode {
 
     BC_LET,
     BC_SET,
+    BC_CALL,
     
     BC_EXIT,
     ENDARRAY,
@@ -42,6 +43,10 @@ typedef enum BcDataType {
     DT_BOOL,
     DT_ARRAY,
 } BcDataType;
+typedef enum BcBuiltIns {
+    BUILTIN_GET,
+} BcBuiltIns;
+
 void compileTokens(TkQueue*, char*);
 
 #endif

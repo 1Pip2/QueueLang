@@ -303,7 +303,26 @@ void compileSetLet(Compiler* compiler) {
 
     compiler->curr = safePop(compiler);
     expectSecType(compiler->curr, TKTYPE_CPAREN);
-} 
+}
+
+void compileCall(Compiler* compiler) {
+    appendByte(compiler->outputfile, BC_CALL);
+
+    compiler->curr = safePop(compiler);
+    expectSecType(compiler->curr, TKTYPE_OPAREN);
+
+    compiler->curr = safePop(compiler);
+    expectPrimeType(compiler->curr, _TKTYPE_ID);
+    if (strcmp(compiler->curr->stringdata, "get") == 0) {
+        appendQuad(compiler->outputfile, BUILTIN_GET);
+    } else {
+        PRINT_DEBUG(compiler->curr);
+        printf("NameError: '%s' is undefined\n", compiler->curr->stringdata);
+        exit(1);
+    }
+    compiler->curr = safePop(compiler);
+    expectSecType(compiler->curr, TKTYPE_CPAREN);
+}
 
 void compileBody(Compiler* compiler) {
     compiler->curr = safePop(compiler);
@@ -312,6 +331,8 @@ void compileBody(Compiler* compiler) {
     while ((compiler->curr = safePop(compiler))->type2 != TKTYPE_CBRACK) {
         if (compiler->curr->type2 == TKTYPE_SET || compiler->curr->type2 == TKTYPE_LET) {
             compileSetLet(compiler);
+        } else if (compiler->curr->type2 == TKTYPE_CALL) {
+            compileCall(compiler);
         } else if (compiler->curr->type1 == _TKTYPE_OP) {
             appendByte(compiler->outputfile, get_op(compiler->curr->type2));
         } else if (compiler->curr->type1 == _TKTYPE_LIT) {
