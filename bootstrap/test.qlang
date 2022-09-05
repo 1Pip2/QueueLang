@@ -1,4 +1,12 @@
 prog: [
-    set(a) {{5 10 -3 0} {8 0 3} {34 2 9}} do
-	. a do
+    set(c) 100 do
+    let(c) 5 do
+    . c do
+
+    set(a) 1 do
+    let(b) 10 do
+    while [<= a b do] [
+        . a do
+        + a 1 set(a) ;
+    ]
 ]

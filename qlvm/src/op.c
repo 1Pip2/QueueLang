@@ -58,6 +58,7 @@ void execSet(VirtMachine* vm, u_int8_t writeable, u_int64_t index) {
         vm->vars[vm->var_num - 1]->present = 0;
     }
 
+    Qitem* vardata = dequeue(vm->queue);
     if (vm->vars[index]->present == 0) {
         vm->vars[index]->present = 1;
         vm->vars[index]->writeable = writeable;
@@ -67,9 +68,15 @@ void execSet(VirtMachine* vm, u_int8_t writeable, u_int64_t index) {
             printf("TypeError: Cannot 'set' constant variable\n");
             RAISE_TYPE();
          }
+
+         expectQitemDt(vm, vardata, vm->vars[index]->data->type);
+         if (vm->vars[index]->writeable != writeable) {
+            dumpQueue(vm->queue);
+            printf("TypeError: Cannot convert var to constant\n");
+            RAISE_TYPE();
+         } 
     }
         
-    Qitem* vardata = dequeue(vm->queue);
     if (vardata->type != VMOP_DATA) {
         dumpQueue(vm->queue);
         RAISE_INVALID_ARG();
