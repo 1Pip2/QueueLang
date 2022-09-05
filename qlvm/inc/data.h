@@ -13,6 +13,7 @@ typedef enum VmBaseType {
     VMDT_INT,
     VMDT_BOOL,
     VMDT_ARRAY,
+    VMDT_UNKNOWN,
 } VmBaseType;
 typedef struct VmDataType {
     VmBaseType type;

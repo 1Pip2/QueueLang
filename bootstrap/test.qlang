@@ -1,8 +1,4 @@
 prog: [
-    set(a) 1 do
-    let(b) 10 do
-    while [<= a b do] [
-        . a do
-        + a 1 set(a) ;
-    ]
+    set(a) {{4 8 8 -3} {3 0 4} {}} do
+    . a do
 ]

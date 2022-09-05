@@ -24,6 +24,10 @@ VmArray* initArray(VirtMachine* vm, VmData* data) {
         }
     }
 
+    if (array->size == 0) {
+        data->type.type = VMDT_UNKNOWN;
+    }
+
     return array;
 }
 
@@ -134,6 +138,9 @@ void printDataType(VmDataType type) {
      case VMDT_BOOL:
         printf("Bool");
         break;
+    case VMDT_UNKNOWN:
+        printf("?");
+        break;
      
      default:
         RAISE_UNREACHABLE();
@@ -142,6 +149,10 @@ void printDataType(VmDataType type) {
 }
 
 void expectDt(VirtMachine* vm, VmDataType type, VmDataType expected) {
+    if (type.type == VMDT_UNKNOWN && type.array_deph == expected.array_deph) {
+        return;
+    }
+
     if (type.type != expected.type || type.array_deph != expected.array_deph) {
         dumpQueue(vm->queue);
         printf("TypeError: Expected ");

@@ -85,7 +85,10 @@ void markArrayData(GarbageCollector* gc, u_int64_t data, VmDataType type) {
         for (size_t i = 0; i < array->size; i++) {
             markArrayData(gc, array->values[i], (VmDataType) {type.type, type.array_deph - 1});
         }
-        markPtr(gc, array->values);
+
+        if (array->size != 0) {
+            markPtr(gc, array->values);
+        }
         markPtr(gc, array);
     }
 }
@@ -96,7 +99,10 @@ void markData(GarbageCollector* gc, VmData* data) {
         for (size_t i = 0; i < array->size; i++) {
             markArrayData(gc, array->values[i], (VmDataType) {data->type.type, data->type.array_deph - 1});
         }
-        markPtr(gc, array->values);
+
+        if (array->size != 0) {
+            markPtr(gc, array->values);
+        }
         markPtr(gc, array);
 
     }
