@@ -31,7 +31,7 @@ typedef struct VmArray {
 } VmArray;
 
 VmData* initData(struct VirtMachine*);
-VmData* copyData(VmDataType, u_int64_t);
+VmData* copyData(struct VirtMachine*, VmDataType, u_int64_t);
 void printDataType(VmDataType);
 void expectDt(struct VirtMachine*, VmDataType, VmDataType);
 void expectQitemDt(struct VirtMachine*, struct Qitem*, VmDataType);

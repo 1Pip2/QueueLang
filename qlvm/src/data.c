@@ -6,13 +6,13 @@
 #include "errors.h"
 
 VmArray* initArray(VirtMachine* vm, VmData* data) {
-    VmArray* array = gcMalloc(sizeof(VmArray));
+    VmArray* array = gcMalloc(vm->gc, sizeof(VmArray));
     array->values = NULL;
     array->size = 0;
 
     VmData* curr;
     while (*(vm->ip++) != ARRAYEND) {
-        array->values = gcRealloc(array->values, (++array->size) * sizeof(u_int64_t));
+        array->values = gcRealloc(vm->gc, array->values, (++array->size) * sizeof(u_int64_t));
         curr = initData(vm);
         array->values[array->size - 1] = curr->data;
 
@@ -28,7 +28,7 @@ VmArray* initArray(VirtMachine* vm, VmData* data) {
 }
 
 VmData* initData(VirtMachine* vm) {
-    VmData* new = gcMalloc(sizeof(VmData));
+    VmData* new = gcMalloc(vm->gc, sizeof(VmData));
     VmBaseType base_type = *(vm->ip++);
 
     new->type.array_deph = 0;
@@ -55,10 +55,10 @@ VmData* initData(VirtMachine* vm) {
     return new;
 }
 
-VmData* copyData(VmDataType type, u_int64_t data) {
-    VmData* new = gcMalloc(sizeof(VmData));
+VmData* copyData(VirtMachine* vm, VmDataType type, u_int64_t data) {
+    VmData* new = gcMalloc(vm->gc, sizeof(VmData));
     if (type.array_deph > 0) {
-        VmArray* array = gcMalloc(sizeof(VmArray));
+        VmArray* array = gcMalloc(vm->gc, sizeof(VmArray));
         VmArray* old_array = (void*) data;
 
         new->data = (u_int64_t) array;
@@ -69,8 +69,8 @@ VmData* copyData(VmDataType type, u_int64_t data) {
         elementtype.array_deph--;
         VmData* curr;
         for (size_t i = 0; i < old_array->size; i++) {
-            curr = copyData(elementtype, old_array->values[i]);
-            array->values = gcRealloc(array->values, (i + 1) * sizeof(u_int64_t));
+            curr = copyData(vm, elementtype, old_array->values[i]);
+            array->values = gcRealloc(vm->gc, array->values, (i + 2) * sizeof(u_int64_t));
             array->values[i] = curr->data;
         }
         

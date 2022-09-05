@@ -16,12 +16,12 @@ typedef struct GarbageCollector {
     HeapFragment* tail;
 } GarbageCollector;
 
-void gcInit(void);
-void* gcMalloc(size_t);
-void* gcRealloc(void*, size_t);
-void markQueue(Queue*);
-void markVars(VmVar**, size_t);
-void sweep(void);
+GarbageCollector* gcInit(void);
+void* gcMalloc(GarbageCollector*, size_t);
+void* gcRealloc(GarbageCollector*, void*, size_t);
+void markQueue(GarbageCollector*, Queue*);
+void markVars(GarbageCollector*, VmVar**, size_t);
+void sweep(GarbageCollector*);
 
 
 #endif

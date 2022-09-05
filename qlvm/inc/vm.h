@@ -47,10 +47,12 @@ typedef struct VmVar {
 } VmVar;
 
 struct Queue;
+struct GarbageCollector;
 typedef struct VirtMachine {
     u_int8_t* ip;
     u_int64_t op_count;
     struct Queue* queue;
+    struct GarbageCollector* gc;
     
     VmVar** vars;
     size_t var_num;

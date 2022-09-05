@@ -130,7 +130,7 @@ void opCpy(VirtMachine* vm) {
     Qitem* front = queuePeek(vm->queue);
     VmData* data = NULL;
     if (front->type == VMOP_DATA) {
-        data = copyData(front->data->type, front->data->data);
+        data = copyData(vm, front->data->type, front->data->data);
     }
 
     enqueue(vm->queue, data, front->type);
@@ -151,6 +151,7 @@ VirtMachine* vmInit(u_int8_t* code) {
     new->ip = code;
     new->queue = queueInit();
     new->op_count = 0;
+    new->gc = gcInit();
 
     new->vars = NULL;
     new->var_num = 0;
@@ -167,9 +168,9 @@ _Noreturn void vmInterpret(u_int8_t* code, VmOptions* options) {
             dumpQueue(vm->queue);
         }
 
-        markQueue(vm->queue);
-        markVars(vm->vars, vm->var_num);
-        sweep();
+        markQueue(vm->gc, vm->queue);
+        markVars(vm->gc, vm->vars, vm->var_num);
+        sweep(vm->gc);
         
         op = *(vm->ip++);
         if (op == VMOP_DATA) {

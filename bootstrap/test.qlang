@@ -1,8 +1,4 @@
 prog: [
-    set(c) 100 do
-    let(c) 5 do
-    . c do
-
     set(a) 1 do
     let(b) 10 do
     while [<= a b do] [

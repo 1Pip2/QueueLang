@@ -6,13 +6,14 @@
 #include "errors.h"
 #include "queue.h"
 
-GarbageCollector gc[1];
-void gcInit(void) {
-    gc->head = NULL;
-    gc->tail = NULL;
+GarbageCollector* gcInit(void) {
+    GarbageCollector* new = malloc(sizeof(GarbageCollector));
+    new->head = NULL;
+    new->tail = NULL;
+    return new;
 }
 
-HeapFragment* appendPointer(HeapFragment* heapfrag, void* ptr) {
+HeapFragment* appendPointer(GarbageCollector* gc, HeapFragment* heapfrag, void* ptr) {
     heapfrag->marked = 0;
     heapfrag->ptr = ptr;
     heapfrag->next = NULL;
@@ -27,7 +28,7 @@ HeapFragment* appendPointer(HeapFragment* heapfrag, void* ptr) {
     return heapfrag;
 }
 
-void removePointer(HeapFragment* remove, HeapFragment* last) {
+void removePointer(GarbageCollector* gc, HeapFragment* remove, HeapFragment* last) {
     if (last == NULL) {
         gc->head = remove->next;
     } else {
@@ -39,14 +40,14 @@ void removePointer(HeapFragment* remove, HeapFragment* last) {
     }
 }
 
-void* gcMalloc(size_t size) {
+void* gcMalloc(GarbageCollector* gc, size_t size) {
     void* ptr = malloc(size);
-    HeapFragment* curr = appendPointer(malloc(sizeof(HeapFragment)), ptr);
+    HeapFragment* curr = appendPointer(gc, malloc(sizeof(HeapFragment)), ptr);
 
     return ptr;
 }
 
-void* gcRealloc(void* ptr, size_t size) {
+void* gcRealloc(GarbageCollector* gc,void* ptr, size_t size) {
     HeapFragment* curr = gc->head;
     while (curr != NULL) {
         if (curr->ptr == ptr) {
@@ -57,7 +58,7 @@ void* gcRealloc(void* ptr, size_t size) {
     }
 
     if (curr == NULL) {
-        curr = appendPointer(malloc(sizeof(HeapFragment)), NULL);
+        curr = appendPointer(gc, malloc(sizeof(HeapFragment)), NULL);
     }
 
     ptr = realloc(ptr, size);
@@ -65,7 +66,7 @@ void* gcRealloc(void* ptr, size_t size) {
     return ptr;
 }
 
-void markPtr(void* ptr) {
+void markPtr(GarbageCollector* gc, void* ptr) {
     HeapFragment* curr;
     for (curr = gc->head; curr != NULL; curr = curr->next) {
         if (curr->ptr == ptr) {
@@ -78,54 +79,54 @@ void markPtr(void* ptr) {
     RAISE_UNREACHABLE();
 }
 
-void markArrayData(u_int64_t data, VmDataType type) {
+void markArrayData(GarbageCollector* gc, u_int64_t data, VmDataType type) {
     if (type.array_deph > 0) {
         VmArray* array = (void*) data;
         for (size_t i = 0; i < array->size; i++) {
-            markArrayData(array->values[i], (VmDataType) {type.type, type.array_deph - 1});
+            markArrayData(gc, array->values[i], (VmDataType) {type.type, type.array_deph - 1});
         }
-        markPtr(array->values);
-        markPtr(array);
+        markPtr(gc, array->values);
+        markPtr(gc, array);
     }
 }
 
-void markData(VmData* data) {
+void markData(GarbageCollector* gc, VmData* data) {
     if (data->type.array_deph > 0) {
         VmArray* array = (void*) data->data;
         for (size_t i = 0; i < array->size; i++) {
-            markArrayData(array->values[i], (VmDataType) {data->type.type, data->type.array_deph - 1});
+            markArrayData(gc, array->values[i], (VmDataType) {data->type.type, data->type.array_deph - 1});
         }
-        markPtr(array->values);
-        markPtr(array);
+        markPtr(gc, array->values);
+        markPtr(gc, array);
 
     }
 
-    markPtr(data);
+    markPtr(gc, data);
 }
 
-void markQueue(Queue* queue) {
+void markQueue(GarbageCollector* gc, Queue* queue) {
     Qitem* curr;
     for (curr = queue->front; curr != NULL; curr = curr->last) {
         if (curr->type == VMOP_DATA) {
-            markData((void*) curr->data);
+            markData(gc, (void*) curr->data);
         }
     }
 }
 
-void markVars(VmVar** vars, size_t var_num) {
+void markVars(GarbageCollector* gc, VmVar** vars, size_t var_num) {
     for (size_t i = 0; i < var_num; i++) {
         if (vars[i]->present) {
-            markData(vars[i]->data);
+            markData(gc, vars[i]->data);
         }
     }
 }
 
-void sweep(void) {
+void sweep(GarbageCollector* gc) {
     HeapFragment* last = NULL;
     HeapFragment* curr = gc->head;
     while (curr != NULL) {
         if (curr->marked == 0) {
-            removePointer(curr, last);
+            removePointer(gc, curr, last);
 
             free(curr->ptr);
             free(curr);
