@@ -33,6 +33,9 @@ void builtinGet(VirtMachine* vm) {
     data->data = array->values[arg2->data->data];
     data->type = (VmDataType) {arg1->data->type.type, arg1->data->type.array_deph - 1};
     enqueue(vm->queue, data, VMOP_DATA);
+
+    free(arg1);
+    free(arg2);
 }
 
 void builtinAppend(VirtMachine* vm) {
@@ -58,4 +61,7 @@ void builtinAppend(VirtMachine* vm) {
     }
 
     appendToArray(vm, array, arg2->data->data);
+
+    free(arg1);
+    free(arg2);
 }

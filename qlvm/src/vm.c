@@ -117,6 +117,8 @@ void opJmpNif(VirtMachine* vm, u_int8_t* base) {
     } else {
         vm->ip += 8;
     }
+
+    free(bool);
 }
 
 void opJmp(VirtMachine* vm, u_int8_t* base) {
@@ -135,6 +137,8 @@ void opReq(VirtMachine* vm) {
         vm->queue->back->last = front;
         vm->queue->back = front;
     }
+
+    free(front);
 }
 
 void opDup(VirtMachine* vm) {

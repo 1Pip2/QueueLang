@@ -1,5 +1,6 @@
 prog: [
     let(size) 100;
+    
     set(curr) {};
     set(i) 0;
     while [- size 1 < i;] [

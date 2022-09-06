@@ -104,6 +104,8 @@ void execSet(VirtMachine* vm, u_int8_t writeable, u_int64_t index) {
     }
 
     vm->vars[index]->data = vardata->data;
+
+    free(vardata);
 }
 
 void execCall(VirtMachine* vm, u_int64_t data) {
