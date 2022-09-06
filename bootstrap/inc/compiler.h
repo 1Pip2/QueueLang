@@ -50,6 +50,7 @@ typedef enum BcDataType {
 } BcDataType;
 typedef enum BcBuiltIns {
     BUILTIN_GET,
+    BUILTIN_APPEND,
 } BcBuiltIns;
 
 void compileTokens(TkQueue*, char*);

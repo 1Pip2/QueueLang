@@ -34,6 +34,7 @@ A function is called using the following syntax:
 ### Built in functions
 The following functions are built into the language:
 - 'get' arg1: array, arg2: int; returns arg1\[arg2]
+- 'append' arg1: array, arg2: int; appends arg2 to arg1
 
 ### Operations
 Arithmetic:

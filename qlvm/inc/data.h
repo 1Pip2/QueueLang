@@ -29,10 +29,12 @@ typedef struct VmData {
 typedef struct VmArray {
     u_int64_t* values;
     size_t size;
+    size_t totalsize;
 } VmArray;
 
 VmData* initData(struct VirtMachine*);
 VmData* copyData(struct VirtMachine*, VmDataType, u_int64_t);
+void appendToArray(struct VirtMachine*, VmArray*, u_int64_t);
 void printDataType(VmDataType);
 void expectDt(struct VirtMachine*, VmDataType, VmDataType);
 void expectQitemDt(struct VirtMachine*, struct Qitem*, VmDataType);

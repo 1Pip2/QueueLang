@@ -47,6 +47,7 @@ typedef enum VmOp {
 } VmOp;
 typedef enum VmBuiltIns {
     BUILTIN_GET,
+    BUILTIN_APPEND,
 } VmBuiltIns;
 
 

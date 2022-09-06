@@ -111,6 +111,9 @@ void execCall(VirtMachine* vm, u_int64_t data) {
     case BUILTIN_GET:
         builtinGet(vm);
         break;
+    case BUILTIN_APPEND:
+        builtinAppend(vm);
+        break;
     
     default:
         dumpQueue(vm->queue);

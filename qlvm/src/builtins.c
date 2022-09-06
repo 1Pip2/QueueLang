@@ -34,3 +34,28 @@ void builtinGet(VirtMachine* vm) {
     data->type = (VmDataType) {arg1->data->type.type, arg1->data->type.array_deph - 1};
     enqueue(vm->queue, data, VMOP_DATA);
 }
+
+void builtinAppend(VirtMachine* vm) {
+    Qitem* arg1 = dequeue(vm->queue);
+    if (arg1->type != VMOP_DATA) {
+        dumpQueue(vm->queue);
+        printf("TypeError: Expected type 'data'\n");
+        RAISE_TYPE();
+    }
+    if (arg1->data->type.array_deph == 0) {
+        dumpQueue(vm->queue);
+        printf("TypeError: Expected arg1 to be of type 'array' in function get\n");
+        RAISE_TYPE();
+    }
+
+    VmArray* array = (void*) arg1->data->data;
+    Qitem* arg2 = dequeue(vm->queue);
+    expectQitemDt(vm, arg2, (VmDataType) {arg1->data->type.type, arg1->data->type.array_deph - 1});
+
+    if (array->size == 0) {
+        arg1->data->type.type = arg2->data->type.type;
+        arg1->data->type.array_deph += arg2->data->type.array_deph;
+    }
+
+    appendToArray(vm, array, arg2->data->data);
+}

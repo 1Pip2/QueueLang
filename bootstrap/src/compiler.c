@@ -324,6 +324,8 @@ void compileCall(Compiler* compiler) {
     expectPrimeType(compiler->curr, _TKTYPE_ID);
     if (strcmp(compiler->curr->stringdata, "get") == 0) {
         appendQuad(compiler->outputfile, BUILTIN_GET);
+    } else if (strcmp(compiler->curr->stringdata, "append") == 0) {
+        appendQuad(compiler->outputfile, BUILTIN_APPEND);
     } else {
         PRINT_DEBUG(compiler->curr);
         printf("NameError: '%s' is undefined\n", compiler->curr->stringdata);

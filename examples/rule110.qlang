@@ -1,0 +1,40 @@
+prog: [
+    let(size) 100;
+    set(curr) {};
+    set(i) 0;
+    while [- size 1 < i;] [
+        call (append) curr 0;
+        + i 1 set(i);
+    ]
+    call(append) curr 1;
+
+    set(i) 0;
+    while [< i size;] [
+        . curr;
+        
+        set(next) {};
+        set(j) 0;
+        while [< j size;] [
+            = j 0; if [set(l) 0;] 
+            - j 1 call(get) curr do  set(l);
+            endif
+
+            call(get) curr j set(c);
+
+            - size 1 = j; if [set(r) 0;] 
+            + j 1 call(get) curr do  set(r);
+            endif
+
+            = l c = l r
+            = c 0 = r 0 and do do and do do or;
+            if [call(append) next 0;]
+            call(append) next 1;
+            endif
+
+            + j 1 set(j);
+        ]
+
+        set(curr) next;
+        + i 1 set(i);
+    ]
+]

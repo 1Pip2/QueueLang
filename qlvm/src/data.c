@@ -5,16 +5,29 @@
 #include "data.h"
 #include "errors.h"
 
+void appendToArray(VirtMachine* vm, VmArray* array, u_int64_t data) {
+    if (array->size >= array->totalsize) {
+        if (array->totalsize == 0) {
+            array->totalsize = 1;
+        } else {
+            array->totalsize *= 2;
+        }
+    }
+
+    array->values = gcRealloc(vm->gc, array->values, (array->totalsize) * sizeof(u_int64_t));
+    array->values[array->size++] = data;
+}
+
 VmArray* initArray(VirtMachine* vm, VmData* data) {
     VmArray* array = gcMalloc(vm->gc, sizeof(VmArray));
     array->values = NULL;
     array->size = 0;
+    array->totalsize = 0;
 
     VmData* curr;
     while (*(vm->ip++) != ARRAYEND) {
-        array->values = gcRealloc(vm->gc, array->values, (++array->size) * sizeof(u_int64_t));
         curr = initData(vm);
-        array->values[array->size - 1] = curr->data;
+        appendToArray(vm, array, curr->data);
 
         if (array->size == 1) {
             data->type.array_deph += curr->type.array_deph;
@@ -155,7 +168,7 @@ void expectDt(VirtMachine* vm, VmDataType type, VmDataType expected) {
         return;
     }
 
-    if (type.type != expected.type || type.array_deph != expected.array_deph) {
+    if ((type.type != expected.type && expected.type != VMDT_UNKNOWN) || type.array_deph != expected.array_deph) {
         dumpQueue(vm->queue);
         printf("TypeError: Expected ");
         printDataType(expected);
