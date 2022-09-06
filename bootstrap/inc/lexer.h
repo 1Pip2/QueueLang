@@ -34,6 +34,11 @@ typedef enum TokenType2 {
     TKTYPE_LESSEQU,
     TKTYPE_GREATEREQU,
     
+    TKTYPE_OR,
+    TKTYPE_XOR,
+    TKTYPE_AND,
+    TKTYPE_NOT,
+    
     TKTYPE_DUMP,
     TKTYPE_REQ,
     TKTYPE_DUP,

@@ -82,6 +82,15 @@ char* strQitem(Qitem* op) {
         return ">=";
     case VMOP_LESSEQU:
         return "<=";
+
+    case VMOP_OR:
+        return "or";
+    case VMOP_XOR:
+        return "xor";
+    case VMOP_AND:
+        return "and";
+    case VMOP_NOT:
+        return "not";
     
     case VMOP_DUMP:
         return ".";

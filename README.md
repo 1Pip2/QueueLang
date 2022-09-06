@@ -1,9 +1,8 @@
 # QueueLang
 QueueLang is a language that is:
   - A WORK IN PROGRESS!
-  - Interpreted and compiles to bytecode AheadOfTime
+  - Interpreted and compiled to bytecode AheadOfTime
   - 100% queue based at runtime
-  - Is self-compiled whilst the VirtualMachine is written in c
 ## The Concept
 All operations(+, -, if, else, ..), data(Numbers, Strings, ..) and results of operations get enqueued. <br />
 For example, "(7 - 4) * (8 % 3)" would be written as: "- 7 4 % 8 3 *;"
@@ -50,6 +49,11 @@ Conditional:
 - '<' will check if the front element is less than the second
 - '>=' will check if the front element is greater or equal
 - '<=' will check if the front element is less or equal
+
+- 'or' will check if one of the front two elements of the queue is True
+- 'xor will check if one of the front two elements of the queue is True and one is False
+- 'and' will check if both of the front two elements of the queue are True
+- 'not' will check if the front element of the queue is False
 
 Queue:
 - ';' countes all enqueued operations and executes the front of the queue that many times 

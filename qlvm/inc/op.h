@@ -23,6 +23,7 @@ free(op2);
 
 #define MATHOP(operation) STDOP(INTDT, INTDT, INTDT, operation);
 #define COMPOP(operation) STDOP(INTDT, INTDT, BOOLDT, operation);
+#define CONDOP(operation) STDOP(BOOLDT, BOOLDT, BOOLDT, operation);
 
 void execAdd(struct VirtMachine*);
 void execSub(struct VirtMachine*);
@@ -35,6 +36,11 @@ void execGreater(struct VirtMachine*);
 void execLess(struct VirtMachine*);
 void execGreaterEqu(struct VirtMachine*);
 void execLessEqu(struct VirtMachine*);
+
+void execOr(struct VirtMachine*);
+void execXor(struct VirtMachine*);
+void execAnd(struct VirtMachine*);
+void execNot(struct VirtMachine*);
 
 void execDump(struct VirtMachine*);
 void execSet(struct VirtMachine*, u_int8_t, u_int64_t);

@@ -22,6 +22,11 @@ typedef enum ByteCode {
     BC_GREATEREQU,
     BC_LESSEQU,
 
+    BC_OR,
+    BC_XOR,
+    BC_AND,
+    BC_NOT,
+
     BC_JMPNIF,
     BC_JMP,
 

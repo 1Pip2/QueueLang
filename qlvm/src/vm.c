@@ -63,6 +63,19 @@ void opDo(VirtMachine* vm) {
         execLessEqu(vm);
         break;
 
+    case VMOP_OR:
+        execOr(vm);
+        break;
+    case VMOP_XOR:
+        execXor(vm);
+        break;
+    case VMOP_AND:
+        execAnd(vm);
+        break;
+    case VMOP_NOT:
+        execNot(vm);
+        break;
+
     case VMOP_DUMP:
         execDump(vm);
         break;

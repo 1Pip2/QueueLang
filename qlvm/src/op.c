@@ -39,6 +39,26 @@ void execLessEqu(VirtMachine* vm) {
     COMPOP(<=);
 }
 
+void execOr(VirtMachine* vm) {
+    CONDOP(||);
+}
+void execXor(VirtMachine* vm) {
+    CONDOP(!=);
+}
+void execAnd(VirtMachine* vm) {
+    CONDOP(&&);
+}
+void execNot(VirtMachine* vm) {
+    Qitem* op = dequeue(vm->queue);
+    expectQitemDt(vm, op, BOOLDT);
+
+    VmData* new = gcMalloc(vm->gc, sizeof(VmData));
+    new->type = BOOLDT;
+    new->data = op->data->data == 0;
+    enqueue(vm->queue, new, VMOP_DATA);
+    free(op);
+}
+
 void execDump(VirtMachine* vm) {
     Qitem* printval = dequeue(vm->queue);
     if (printval->type != VMOP_DATA) {

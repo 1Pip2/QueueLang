@@ -24,6 +24,11 @@ typedef enum VmOp {
     VMOP_GREATEREQU,
     VMOP_LESSEQU,
 
+    VMOP_OR,
+    VMOP_XOR,
+    VMOP_AND,
+    VMOP_NOT,
+
     VMOP_JMPNIF,
     VMOP_JMP,
 

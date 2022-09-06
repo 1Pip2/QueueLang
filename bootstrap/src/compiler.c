@@ -138,6 +138,15 @@ ByteCode get_op(TokenType2 type) {
         return BC_GREATEREQU;
     case TKTYPE_LESSEQU:
         return BC_LESSEQU;
+
+    case TKTYPE_OR:
+        return BC_OR;
+    case TKTYPE_XOR:
+        return BC_XOR;
+    case TKTYPE_AND:
+        return BC_AND;
+    case TKTYPE_NOT:
+        return BC_NOT;
     
     case TKTYPE_DUMP:
         return BC_DUMP;

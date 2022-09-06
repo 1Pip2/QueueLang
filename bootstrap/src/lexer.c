@@ -157,6 +157,19 @@ void appendIdentifier(Lexer* lexer, char* str) {
         tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_RM, NULL, 0);
         free(str);
 
+    } else if (strcmp(str, "or") == 0) {
+        tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_OR, NULL, 0);
+        free(str);
+    } else if (strcmp(str, "xor") == 0) {
+        tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_XOR, NULL, 0);
+        free(str);
+    } else if (strcmp(str, "and") == 0) {
+        tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_AND, NULL, 0);
+        free(str);
+    } else if (strcmp(str, "not") == 0) {
+        tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_NOT, NULL, 0);
+        free(str);
+
     } else if (strcmp(str, "let") == 0) {
         tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_LET, NULL, 0);
         free(str);
