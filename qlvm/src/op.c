@@ -116,10 +116,16 @@ void execCall(VirtMachine* vm, u_int64_t data) {
     case BUILTIN_APPEND:
         builtinAppend(vm);
         break;
+    case BUILTIN_POP:
+        builtinPop(vm);
+        break;
+    case BUILTIN_SIZE:
+        builtinSize(vm);
+        break;
     
     default:
         dumpQueue(vm->queue);
-        RAISE_UNDEFINED();
+        RAISE_UNREACHABLE();
     }
 }
 

@@ -35,6 +35,8 @@ A function is called using the following syntax:
 The following functions are built into the language:
 - 'get' arg1: array, arg2: int; returns arg1\[arg2]
 - 'append' arg1: array, arg2: int; appends arg2 to arg1
+- 'pop' arg1: array, arg2: int; pops arg1\[arg2] and returns the result
+- 'size' arg1: array; returns size of arg1
 
 ### Operations
 Arithmetic:

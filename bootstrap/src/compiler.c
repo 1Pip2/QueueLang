@@ -326,6 +326,10 @@ void compileCall(Compiler* compiler) {
         appendQuad(compiler->outputfile, BUILTIN_GET);
     } else if (strcmp(compiler->curr->stringdata, "append") == 0) {
         appendQuad(compiler->outputfile, BUILTIN_APPEND);
+    } else if (strcmp(compiler->curr->stringdata, "pop") == 0) {
+        appendQuad(compiler->outputfile, BUILTIN_POP);
+    } else if (strcmp(compiler->curr->stringdata, "size") == 0) {
+        appendQuad(compiler->outputfile, BUILTIN_SIZE);
     } else {
         PRINT_DEBUG(compiler->curr);
         printf("NameError: '%s' is undefined\n", compiler->curr->stringdata);

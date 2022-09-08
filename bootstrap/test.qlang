@@ -1,6 +1,8 @@
 prog: [
-    or True False .;
-    xor True True .;
-    and True True .;
-    not False .;
+
+
+    set(array) {5 0 7 5 -3 10 3 5 2};
+    while [call(size) array > do 0;] [
+        call(pop) array 0 .;
+    ]
 ]
