@@ -192,10 +192,12 @@ void opRet(VirtMachine* vm) {
 
     markQueue(vm->curr_fun->gc, vm->curr_fun->queue);
     sweep(vm->curr_fun->gc);
-    HeapFragment* last;
-    for (HeapFragment* hf = vm->curr_fun->gc->head; hf != NULL; free(last)) {
-        last = hf;
-        hf = hf->next; 
+    if (vm->curr_fun->ret->gc->tail == NULL) {
+        vm->curr_fun->ret->gc->head = vm->curr_fun->gc->head;
+        vm->curr_fun->ret->gc->tail = vm->curr_fun->gc->tail;
+    } else {
+        vm->curr_fun->ret->gc->tail->next = vm->curr_fun->gc->head;
+        vm->curr_fun->ret->gc->tail = vm->curr_fun->gc->tail;
     }
     free(vm->curr_fun->gc);
 
@@ -205,9 +207,11 @@ void opRet(VirtMachine* vm) {
         curr = curr->last;
         enqueue(vm->curr_fun->ret->queue, tmp->data, tmp->type);
     }
+    free(vm->curr_fun->queue);
 
-    free(vm->curr_fun);
+    VmFun* fun = vm->curr_fun;
     vm->curr_fun = vm->curr_fun->ret;
+    free(fun);
 }
 
 VmFun* vmFunInit(VmFun* ret, u_int8_t* ip) {
