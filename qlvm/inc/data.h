@@ -8,6 +8,7 @@
 #define BOOLDT (VmDataType) {VMDT_BOOL, 0}
 
 struct VirtMachine;
+struct VmFun;
 struct Qitem;
 typedef enum VmBaseType {
     VMDT_INT,
@@ -32,12 +33,12 @@ typedef struct VmArray {
     size_t totalsize;
 } VmArray;
 
-VmData* initData(struct VirtMachine*);
-VmData* copyData(struct VirtMachine*, VmDataType, u_int64_t);
-void appendToArray(struct VirtMachine*, VmArray*, u_int64_t);
+VmData* initData(struct VmFun*);
+VmData* copyData(struct VmFun*, VmDataType, u_int64_t);
+void appendToArray(struct VmFun*, VmArray*, u_int64_t);
 void printDataType(VmDataType);
-void expectDt(struct VirtMachine*, VmDataType, VmDataType);
-void expectQitemDt(struct VirtMachine*, struct Qitem*, VmDataType);
+void expectDt(struct VmFun*, VmDataType, VmDataType);
+void expectQitemDt(struct VmFun*, struct Qitem*, VmDataType);
 void printData(VmDataType, u_int64_t);
 
 #endif

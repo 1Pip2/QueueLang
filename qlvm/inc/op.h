@@ -6,17 +6,18 @@
 #include "data.h"
 
 struct VirtMachine;
+struct VmFun;
 #define STDOP(op1type, op2type, restype, operation) \
-Qitem* op1 = dequeue(vm->queue);                                            \
-Qitem* op2 = dequeue(vm->queue);                                            \
+Qitem* op1 = dequeue(fun->queue);                                            \
+Qitem* op2 = dequeue(fun->queue);                                            \
 \
-expectQitemDt(vm, op1, op1type);                                            \
-expectQitemDt(vm, op2, op2type);                                            \
+expectQitemDt(fun, op1, op1type);                                            \
+expectQitemDt(fun, op2, op2type);                                            \
 \
-VmData* new = gcMalloc(vm->gc, sizeof(VmData));                             \
+VmData* new = gcMalloc(fun->gc, sizeof(VmData));                             \
 new->type = restype;                                                        \
 new->data = (int64_t) op1->data->data operation (int64_t) op2->data->data;  \
-enqueue(vm->queue, new, VMOP_DATA);                                         \
+enqueue(fun->queue, new, VMOP_DATA);                                         \
 \
 free(op1);                                                                  \
 free(op2);
@@ -25,27 +26,26 @@ free(op2);
 #define COMPOP(operation) STDOP(INTDT, INTDT, BOOLDT, operation);
 #define CONDOP(operation) STDOP(BOOLDT, BOOLDT, BOOLDT, operation);
 
-void execAdd(struct VirtMachine*);
-void execSub(struct VirtMachine*);
-void execMult(struct VirtMachine*);
-void execDiv(struct VirtMachine*);
-void execMod(struct VirtMachine*);
+void execAdd(struct VmFun*);
+void execSub(struct VmFun*);
+void execMult(struct VmFun*);
+void execDiv(struct VmFun*);
+void execMod(struct VmFun*);
 
-void execEqu(struct VirtMachine*);
-void execGreater(struct VirtMachine*);
-void execLess(struct VirtMachine*);
-void execGreaterEqu(struct VirtMachine*);
-void execLessEqu(struct VirtMachine*);
+void execEqu(struct VmFun*);
+void execGreater(struct VmFun*);
+void execLess(struct VmFun*);
+void execGreaterEqu(struct VmFun*);
+void execLessEqu(struct VmFun*);
 
-void execOr(struct VirtMachine*);
-void execXor(struct VirtMachine*);
-void execAnd(struct VirtMachine*);
-void execNot(struct VirtMachine*);
+void execOr(struct VmFun*);
+void execXor(struct VmFun*);
+void execAnd(struct VmFun*);
+void execNot(struct VmFun*);
 
-void execDump(struct VirtMachine*);
-void execSet(struct VirtMachine*, u_int8_t, u_int64_t);
-void execCall(struct VirtMachine*, u_int64_t);
-void execCallc(struct VirtMachine*, u_int64_t, u_int8_t*);
-void execExit(struct VirtMachine*);
+void execDump(struct VmFun*);
+void execSet(struct VmFun*, u_int8_t, u_int64_t);
+void execCall(struct VmFun*, u_int64_t);
+void execCallc(struct VirtMachine*, u_int64_t);
 
 #endif

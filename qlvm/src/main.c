@@ -5,21 +5,19 @@
 #include "vm.h"
 #include "fetch.h"
 #include "errors.h"
-#include "queue.h"
 
 void setOption(VmOptions* options, char* cmd) {
-    if (strcmp(cmd, "-info") == 0) {
-        options->dumpInfo = 1;
+    if (strcmp(cmd, "-queue") == 0) {
+        options->dumpQueue = 1;
     } else {
-        printf("Error: Unknown option '%s'\n", cmd);
-        RAISE_COMMON();
+        printf("Unknown option '%s'\n", cmd);
+        RAISE_USAGE();
     }
 }
 
 int main(int argc, char** argv) {
     if (argc < 2) {
-        printf("Usage: qli [option] file\n");
-        exit(ERR_IO);
+        RAISE_USAGE();
     }
 
     VmOptions* options = malloc(sizeof(VmOptions));
@@ -30,6 +28,4 @@ int main(int argc, char** argv) {
 
     u_int8_t* code = fetchCode(argv[argc - 1]);
     vmInterpret(code, options);
-    printf("Error: Unable to return from 'prog'\n");
-    RAISE_COMMON();
 }

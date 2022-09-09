@@ -420,13 +420,7 @@ void compileProg(Compiler* compiler) {
 
     compileBody(compiler);
 
-    appendByte(compiler->outputfile, BC_EXIT);
-
-    appendByte(compiler->outputfile, BC_DATA);
-    appendByte(compiler->outputfile, DT_INT);
-    appendQuad(compiler->outputfile, 0);
-    
-    appendByte(compiler->outputfile, BC_DO);
+    appendByte(compiler->outputfile, BC_RET);
 }
 
 void getFunDefs(Compiler* compiler) {

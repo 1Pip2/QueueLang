@@ -5,7 +5,7 @@
 #include "data.h"
 #include "errors.h"
 
-void appendToArray(VirtMachine* vm, VmArray* array, u_int64_t data) {
+void appendToArray(VmFun* fun, VmArray* array, u_int64_t data) {
     if (array->size >= array->totalsize) {
         if (array->totalsize == 0) {
             array->totalsize = 1;
@@ -14,26 +14,26 @@ void appendToArray(VirtMachine* vm, VmArray* array, u_int64_t data) {
         }
     }
 
-    array->values = gcRealloc(vm->gc, array->values, (array->totalsize) * sizeof(u_int64_t));
+    array->values = gcRealloc(fun->gc, array->values, (array->totalsize) * sizeof(u_int64_t));
     array->values[array->size++] = data;
 }
 
-VmArray* initArray(VirtMachine* vm, VmData* data) {
-    VmArray* array = gcMalloc(vm->gc, sizeof(VmArray));
+VmArray* initArray(VmFun* fun, VmData* data) {
+    VmArray* array = gcMalloc(fun->gc, sizeof(VmArray));
     array->values = NULL;
     array->size = 0;
     array->totalsize = 0;
 
     VmData* curr;
-    while (*(vm->ip++) != ARRAYEND) {
-        curr = initData(vm);
-        appendToArray(vm, array, curr->data);
+    while (*(fun->ip++) != ARRAYEND) {
+        curr = initData(fun);
+        appendToArray(fun, array, curr->data);
 
         if (array->size == 1) {
             data->type.array_deph += curr->type.array_deph;
             data->type.type = curr->type.type;
         } else {
-            expectDt(vm, curr->type, (VmDataType) {data->type.type, data->type.array_deph - 1});
+            expectDt(fun, curr->type, (VmDataType) {data->type.type, data->type.array_deph - 1});
         }
     }
 
@@ -44,38 +44,36 @@ VmArray* initArray(VirtMachine* vm, VmData* data) {
     return array;
 }
 
-VmData* initData(VirtMachine* vm) {
-    VmData* new = gcMalloc(vm->gc, sizeof(VmData));
-    VmBaseType base_type = *(vm->ip++);
+VmData* initData(VmFun* fun) {
+    VmData* new = gcMalloc(fun->gc, sizeof(VmData));
+    VmBaseType base_type = *(fun->ip++);
 
     new->type.array_deph = 0;
     new->type.type = base_type;
     switch (base_type) {
     case VMDT_INT:
-        new->data = *((u_int64_t*) vm->ip);
-        vm->ip += 8;
+        new->data = *((u_int64_t*) fun->ip);
+        fun->ip += 8;
         break;
     case VMDT_BOOL:
-        new->data = *(vm->ip++);
+        new->data = *(fun->ip++);
         break;
     case VMDT_ARRAY:
         new->type.array_deph++;
-        new->data = (u_int64_t) initArray(vm, new);
+        new->data = (u_int64_t) initArray(fun, new);
         break;
     
     default:
-        dumpQueue(vm->queue);
-        RAISE_UNREACHABLE();
-        break;
+        RAISE_UNREACHABLE(fun->queue);
     }
 
     return new;
 }
 
-VmData* copyData(VirtMachine* vm, VmDataType type, u_int64_t data) {
-    VmData* new = gcMalloc(vm->gc, sizeof(VmData));
+VmData* copyData(VmFun* fun, VmDataType type, u_int64_t data) {
+    VmData* new = gcMalloc(fun->gc, sizeof(VmData));
     if (type.array_deph > 0) {
-        VmArray* array = gcMalloc(vm->gc, sizeof(VmArray));
+        VmArray* array = gcMalloc(fun->gc, sizeof(VmArray));
         VmArray* old_array = (void*) data;
 
         new->data = (u_int64_t) array;
@@ -86,8 +84,8 @@ VmData* copyData(VirtMachine* vm, VmDataType type, u_int64_t data) {
         elementtype.array_deph--;
         VmData* curr;
         for (size_t i = 0; i < old_array->size; i++) {
-            curr = copyData(vm, elementtype, old_array->values[i]);
-            array->values = gcRealloc(vm->gc, array->values, (i + 2) * sizeof(u_int64_t));
+            curr = copyData(fun, elementtype, old_array->values[i]);
+            array->values = gcRealloc(fun->gc, array->values, (i + 2) * sizeof(u_int64_t));
             array->values[i] = curr->data;
         }
         
@@ -131,8 +129,7 @@ void printData(VmDataType type, u_int64_t data) {
         break;
     
     default:
-        RAISE_UNREACHABLE();
-        break;
+        RAISE_RAW_UNREACHABLE();
     }
 }
 
@@ -158,33 +155,30 @@ void printDataType(VmDataType type) {
         break;
      
      default:
-        RAISE_UNREACHABLE();
-        break;
+        RAISE_RAW_UNREACHABLE();
      }
 }
 
-void expectDt(VirtMachine* vm, VmDataType type, VmDataType expected) {
+void expectDt(VmFun* fun, VmDataType type, VmDataType expected) {
     if (type.type == VMDT_UNKNOWN) {
         return;
     }
 
     if ((type.type != expected.type && expected.type != VMDT_UNKNOWN) || type.array_deph != expected.array_deph) {
-        dumpQueue(vm->queue);
+        dumpQueue(fun->queue);
         printf("TypeError: Expected ");
         printDataType(expected);
         printf(". Found ");
         printDataType(type);
         puts("");
-        RAISE_COMMON();
+        exit(ERR_TYPE);
     }
 }
 
-void expectQitemDt(VirtMachine* vm, Qitem* qitem, VmDataType expected) {
+void expectQitemDt(VmFun* fun, Qitem* qitem, VmDataType expected) {
     if (qitem->type != VMOP_DATA) {
-        dumpQueue(vm->queue);
-        printf("TypeError: Expected type 'data'\n");
-        RAISE_TYPE();
+        RAISE_EXPECT_DATA(fun->queue);
     }
 
-    expectDt(vm, qitem->data->type, expected);
+    expectDt(fun, qitem->data->type, expected);
 }

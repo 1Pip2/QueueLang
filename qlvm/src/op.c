@@ -7,63 +7,62 @@
 #include "data.h"
 #include "errors.h"
 
-void execAdd(VirtMachine* vm) {
+void execAdd(VmFun* fun) {
     MATHOP(+);
 }
-void execSub(VirtMachine* vm) {
+void execSub(VmFun* fun) {
     MATHOP(-);
 }
-void execMult(VirtMachine* vm) {
+void execMult(VmFun* fun) {
     MATHOP(*);
 }
-void execDiv(VirtMachine* vm) {
+void execDiv(VmFun* fun) {
     MATHOP(/);
 }
-void execMod(VirtMachine* vm) {
+void execMod(VmFun* fun) {
     MATHOP(%);
 }
 
-void execEqu(VirtMachine* vm) {
+void execEqu(VmFun* fun) {
     COMPOP(==);
 }
-void execGreater(VirtMachine* vm) {
+void execGreater(VmFun* fun) {
     COMPOP(>);
 }
-void execLess(VirtMachine* vm) {
+void execLess(VmFun* fun) {
     COMPOP(<);
 }
-void execGreaterEqu(VirtMachine* vm) {
+void execGreaterEqu(VmFun* fun) {
     COMPOP(>=);
 }
-void execLessEqu(VirtMachine* vm) {
+void execLessEqu(VmFun* fun) {
     COMPOP(<=);
 }
 
-void execOr(VirtMachine* vm) {
+void execOr(VmFun* fun) {
     CONDOP(||);
 }
-void execXor(VirtMachine* vm) {
+void execXor(VmFun* fun) {
     CONDOP(!=);
 }
-void execAnd(VirtMachine* vm) {
+void execAnd(VmFun* fun) {
     CONDOP(&&);
 }
-void execNot(VirtMachine* vm) {
-    Qitem* op = dequeue(vm->queue);
-    expectQitemDt(vm, op, BOOLDT);
+void execNot(VmFun* fun) {
+    Qitem* op = dequeue(fun->queue);
+    expectQitemDt(fun, op, BOOLDT);
 
-    VmData* new = gcMalloc(vm->gc, sizeof(VmData));
+    VmData* new = gcMalloc(fun->gc, sizeof(VmData));
     new->type = BOOLDT;
     new->data = op->data->data == 0;
-    enqueue(vm->queue, new, VMOP_DATA);
+    enqueue(fun->queue, new, VMOP_DATA);
     free(op);
 }
 
-void execDump(VirtMachine* vm) {
-    Qitem* printval = dequeue(vm->queue);
+void execDump(VmFun* fun) {
+    Qitem* printval = dequeue(fun->queue);
     if (printval->type != VMOP_DATA) {
-        dumpQueue(vm->queue);
-        RAISE_INVALID_ARG();
+        RAISE_EXPECT_DATA(fun->queue);
     }
 
     printData(printval->data->type, printval->data->data);
@@ -72,69 +71,61 @@ void execDump(VirtMachine* vm) {
     free(printval);
 }
 
-void execSet(VirtMachine* vm, u_int8_t writeable, u_int64_t index) {
-    while (vm->var_num <= index) {
-        vm->vars = realloc(vm->vars, (++vm->var_num) * sizeof(VmVar*));
-        vm->vars[vm->var_num - 1] = malloc(sizeof(VmVar));
-        vm->vars[vm->var_num - 1]->present = 0;
+void execSet(VmFun* fun, u_int8_t writeable, u_int64_t index) {
+    while (fun->var_num <= index) {
+        fun->vars = realloc(fun->vars, (++fun->var_num) * sizeof(VmVar*));
+        fun->vars[fun->var_num - 1] = malloc(sizeof(VmVar));
+        fun->vars[fun->var_num - 1]->present = 0;
     }
 
-    Qitem* vardata = dequeue(vm->queue);
-    if (vm->vars[index]->present == 0) {
-        vm->vars[index]->present = 1;
-        vm->vars[index]->writeable = writeable;
+    Qitem* vardata = dequeue(fun->queue);
+    if (fun->vars[index]->present == 0) {
+        fun->vars[index]->present = 1;
+        fun->vars[index]->writeable = writeable;
     } else {
-         if (vm->vars[index]->writeable == 0) {
-            dumpQueue(vm->queue);
+         if (fun->vars[index]->writeable == 0) {
+            dumpQueue(fun->queue);
             printf("TypeError: Cannot 'set' constant variable\n");
-            RAISE_TYPE();
+            exit(ERR_TYPE);
          }
 
-         expectQitemDt(vm, vardata, vm->vars[index]->data->type);
-         if (vm->vars[index]->writeable != writeable) {
-            dumpQueue(vm->queue);
+         expectQitemDt(fun, vardata, fun->vars[index]->data->type);
+         if (fun->vars[index]->writeable != writeable) {
+            dumpQueue(fun->queue);
             printf("TypeError: Cannot convert var to constant\n");
-            RAISE_TYPE();
+            exit(ERR_TYPE);
          } 
     }
         
     if (vardata->type != VMOP_DATA) {
-        dumpQueue(vm->queue);
-        RAISE_INVALID_ARG();
+        RAISE_EXPECT_DATA(fun->queue);
     }
 
-    vm->vars[index]->data = vardata->data;
+    fun->vars[index]->data = vardata->data;
 
     free(vardata);
 }
 
-void execCall(VirtMachine* vm, u_int64_t data) {
+void execCall(VmFun* fun, u_int64_t data) {
     switch (data) {
     case BUILTIN_GET:
-        builtinGet(vm);
+        builtinGet(fun);
         break;
     case BUILTIN_APPEND:
-        builtinAppend(vm);
+        builtinAppend(fun);
         break;
     case BUILTIN_POP:
-        builtinPop(vm);
+        builtinPop(fun);
         break;
     case BUILTIN_SIZE:
-        builtinSize(vm);
+        builtinSize(fun);
         break;
     
     default:
-        dumpQueue(vm->queue);
-        RAISE_UNREACHABLE();
+        RAISE_UNREACHABLE(fun->queue);
     }
 }
 
-void execCallc(VirtMachine* vm, u_int64_t data, u_int8_t* code) {
-    vmInterpret(code + data, vm->options);
-}
-
-void execExit(VirtMachine* vm) {
-    Qitem* retval = dequeue(vm->queue);
-    expectQitemDt(vm, retval, INTDT);
-    exit(retval->data->data);
+void execCallc(VirtMachine* vm, u_int64_t data) {
+    vm->curr_fun = vmFunInit(vm->curr_fun, vm->code + data);
 }

@@ -6,93 +6,87 @@
 #include "queue.h"
 #include "errors.h"
 
-void builtinGet(VirtMachine* vm) {
-    Qitem* arg1 = dequeue(vm->queue);
+void builtinGet(VmFun* fun) {
+    Qitem* arg1 = dequeue(fun->queue);
     if (arg1->type != VMOP_DATA) {
-        dumpQueue(vm->queue);
-        printf("TypeError: Expected type 'data'\n");
-        RAISE_TYPE();
+        RAISE_EXPECT_DATA(fun->queue);
     }
     if (arg1->data->type.array_deph == 0) {
-        dumpQueue(vm->queue);
+        dumpQueue(fun->queue);
         printf("TypeError: Expected arg1 to be of type 'array'\n");
-        RAISE_TYPE();
+        exit(ERR_TYPE);
     }
 
-    Qitem* arg2 = dequeue(vm->queue);
-    expectQitemDt(vm, arg2, INTDT);
+    Qitem* arg2 = dequeue(fun->queue);
+    expectQitemDt(fun, arg2, INTDT);
 
     VmArray* array = (void*) arg1->data->data;
     if (array->size <= arg2->data->data) {
-        dumpQueue(vm->queue);
+        dumpQueue(fun->queue);
         printf("Error: 'get' out of range\n");
-        RAISE_COMMON();
+        exit(ERR_COMMON);
     }
 
-    VmData* data = gcMalloc(vm->gc, sizeof(VmData));
+    VmData* data = gcMalloc(fun->gc, sizeof(VmData));
     data->data = array->values[arg2->data->data];
     data->type = (VmDataType) {arg1->data->type.type, arg1->data->type.array_deph - 1};
-    enqueue(vm->queue, data, VMOP_DATA);
+    enqueue(fun->queue, data, VMOP_DATA);
 
     free(arg1);
     free(arg2);
 }
 
-void builtinAppend(VirtMachine* vm) {
-    Qitem* arg1 = dequeue(vm->queue);
+void builtinAppend(VmFun* fun) {
+    Qitem* arg1 = dequeue(fun->queue);
     if (arg1->type != VMOP_DATA) {
-        dumpQueue(vm->queue);
-        printf("TypeError: Expected type 'data'\n");
-        RAISE_TYPE();
+        RAISE_EXPECT_DATA(fun->queue);
     }
     if (arg1->data->type.array_deph == 0) {
-        dumpQueue(vm->queue);
+        dumpQueue(fun->queue);
         printf("TypeError: Expected arg1 to be of type 'array'\n");
-        RAISE_TYPE();
+        exit(ERR_TYPE);
     }
 
     VmArray* array = (void*) arg1->data->data;
-    Qitem* arg2 = dequeue(vm->queue);
-    expectQitemDt(vm, arg2, (VmDataType) {arg1->data->type.type, arg1->data->type.array_deph - 1});
+    Qitem* arg2 = dequeue(fun->queue);
+    expectQitemDt(fun, arg2, (VmDataType) {arg1->data->type.type, arg1->data->type.array_deph - 1});
 
     if (array->size == 0) {
         arg1->data->type.type = arg2->data->type.type;
         arg1->data->type.array_deph += arg2->data->type.array_deph;
     }
 
-    appendToArray(vm, array, arg2->data->data);
+    appendToArray(fun, array, arg2->data->data);
 
     free(arg1);
     free(arg2);
 }
 
-void builtinPop(VirtMachine* vm) {
-    Qitem* arg1 = dequeue(vm->queue);
+void builtinPop(VmFun* fun) {
+    Qitem* arg1 = dequeue(fun->queue);
     if (arg1->type != VMOP_DATA) {
-        dumpQueue(vm->queue);
-        printf("TypeError: Expected type 'data'\n");
-        RAISE_TYPE();
+        RAISE_EXPECT_DATA(fun->queue);
     }
     if (arg1->data->type.array_deph == 0) {
-        dumpQueue(vm->queue);
+        dumpQueue(fun->queue);
         printf("TypeError: Expected arg1 to be of type 'array'\n");
-        RAISE_TYPE();
+        exit(ERR_TYPE);
     }
 
-    Qitem* arg2 = dequeue(vm->queue);
-    expectQitemDt(vm, arg2, INTDT);
+    Qitem* arg2 = dequeue(fun->queue);
+    expectQitemDt(fun, arg2, INTDT);
 
     VmArray* array = (void*) arg1->data->data;
     if (array->size <= arg2->data->data) {
-        dumpQueue(vm->queue);
+        dumpQueue(fun->queue);
         printf("Error: 'pop' out of range\n");
-        RAISE_COMMON();
+        exit(ERR_COMMON);
     }
 
-    VmData* data = gcMalloc(vm->gc, sizeof(VmData));
+    VmData* data = gcMalloc(fun->gc, sizeof(VmData));
     data->data = array->values[arg2->data->data];
     data->type = (VmDataType) {arg1->data->type.type, arg1->data->type.array_deph - 1};
-    enqueue(vm->queue, data, VMOP_DATA);
+    enqueue(fun->queue, data, VMOP_DATA);
 
     for (size_t i = arg2->data->data; i + 1 < array->size; i++) {
         array->values[i] = array->values[i+1];
@@ -103,24 +97,22 @@ void builtinPop(VirtMachine* vm) {
     free(arg2);
 }
 
-void builtinSize(VirtMachine* vm) {
-    Qitem* arg1 = dequeue(vm->queue);
+void builtinSize(VmFun* fun) {
+    Qitem* arg1 = dequeue(fun->queue);
     if (arg1->type != VMOP_DATA) {
-        dumpQueue(vm->queue);
-        printf("TypeError: Expected type 'data'\n");
-        RAISE_TYPE();
+        RAISE_EXPECT_DATA(fun->queue);
     }
     if (arg1->data->type.array_deph == 0) {
-        dumpQueue(vm->queue);
+        dumpQueue(fun->queue);
         printf("TypeError: Expected arg1 to be of type 'array'\n");
-        RAISE_TYPE();
+        exit(ERR_TYPE);
     }
 
     VmArray* array = (void*) arg1->data->data;
-    VmData* data = gcMalloc(vm->gc, sizeof(VmData));
+    VmData* data = gcMalloc(fun->gc, sizeof(VmData));
     data->data = array->size;
     data->type = INTDT;
-    enqueue(vm->queue, data, VMOP_DATA);
+    enqueue(fun->queue, data, VMOP_DATA);
 
     free(arg1);
 }

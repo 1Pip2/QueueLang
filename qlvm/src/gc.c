@@ -47,7 +47,7 @@ void* gcMalloc(GarbageCollector* gc, size_t size) {
     return ptr;
 }
 
-void* gcRealloc(GarbageCollector* gc,void* ptr, size_t size) {
+void* gcRealloc(GarbageCollector* gc, void* ptr, size_t size) {
     HeapFragment* curr = gc->head;
     while (curr != NULL) {
         if (curr->ptr == ptr) {
@@ -76,7 +76,7 @@ void markPtr(GarbageCollector* gc, void* ptr) {
     }
 
     printf("Pointer %p was not allocated\n", ptr);
-    RAISE_UNREACHABLE();
+    exit(ERR_FATAL);
 }
 
 void markArrayData(GarbageCollector* gc, u_int64_t data, VmDataType type) {

@@ -103,11 +103,9 @@ char* strQitem(Qitem* op) {
     case VMOP_CALLC:
         return "call";
     
-    case VMOP_EXIT:
-        return "exit";
-    
     default:
-        RAISE_UNREACHABLE();
+        puts("FatalError: Unreachable(bytecode might be corrupted)");
+        exit(ERR_FATAL);
     }
 }
 

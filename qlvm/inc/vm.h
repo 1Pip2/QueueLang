@@ -44,7 +44,6 @@ typedef enum VmOp {
     VMOP_CALLC,
     VMOP_RET,
 
-    VMOP_EXIT,
     ARRAYEND,
 } VmOp;
 typedef enum VmBuiltIns {
@@ -62,23 +61,30 @@ typedef struct VmVar {
 } VmVar;
 
 typedef struct VmOptions {
-    char dumpInfo;
+    char dumpQueue;
 } VmOptions;
 
 struct Queue;
 struct GarbageCollector;
-typedef struct VirtMachine {
+typedef struct VmFun {
     u_int8_t* ip;
-    u_int64_t op_count;
     struct Queue* queue;
     struct GarbageCollector* gc;
     
     VmVar** vars;
     size_t var_num;
 
+    u_int64_t op_count;
+    struct VmFun* ret;
+} VmFun;
+
+typedef struct VirtMachine {
+    u_int8_t* code;
     VmOptions* options;
+    VmFun* curr_fun;
 } VirtMachine;
 
+VmFun* vmFunInit(VmFun* ret, u_int8_t* ip);
 VirtMachine* vmInit(u_int8_t*, VmOptions*);
 void vmInterpret(u_int8_t*, VmOptions*);
 

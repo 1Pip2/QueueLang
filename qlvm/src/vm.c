@@ -9,235 +9,242 @@
 #include "queue.h"
 
 
-void opData(VirtMachine* vm) {
-    enqueue(vm->queue, initData(vm), VMOP_DATA);
+void opData(VmFun* fun) {
+    enqueue(fun->queue, initData(fun), VMOP_DATA);
 }
 
-void opVar(VirtMachine* vm) {
-    u_int64_t index = *((u_int64_t*) vm->ip);
-    vm->ip += 8;
+void opVar(VmFun* fun) {
+    u_int64_t index = *((u_int64_t*) fun->ip);
+    fun->ip += 8;
     
-    if (vm->var_num <= index) {
-        dumpQueue(vm->queue);
-        RAISE_UNDEFINED();
-    } else if (vm->vars[index]->present == 0) {
-        dumpQueue(vm->queue);
-        RAISE_UNDEFINED();
+    if (fun->var_num <= index) {
+        RAISE_NAME_ERROR(fun->queue);
+    } else if (fun->vars[index]->present == 0) {
+        RAISE_NAME_ERROR(fun->queue);
     }
 
-    enqueue(vm->queue, vm->vars[index]->data, VMOP_DATA);
+    enqueue(fun->queue, fun->vars[index]->data, VMOP_DATA);
 }
 
-void opDo(VirtMachine* vm, u_int8_t* code) {
-    Qitem* op = dequeue(vm->queue);
+void opDo(VirtMachine* vm) {
+    Qitem* op = dequeue(vm->curr_fun->queue);
     switch (op->type) {
     case VMOP_ADD:
-        execAdd(vm);
+        execAdd(vm->curr_fun);
         break;
     case VMOP_SUB:
-        execSub(vm);
+        execSub(vm->curr_fun);
         break;
     case VMOP_MULT:
-        execMult(vm);
+        execMult(vm->curr_fun);
         break;
     case VMOP_DIV:
-        execDiv(vm);
+        execDiv(vm->curr_fun);
         break;
     case VMOP_MOD:
-        execMod(vm);
+        execMod(vm->curr_fun);
         break;
 
     case VMOP_EQU:
-        execEqu(vm);
+        execEqu(vm->curr_fun);
         break;
     case VMOP_GREATER:
-        execGreater(vm);
+        execGreater(vm->curr_fun);
         break;
     case VMOP_LESS:
-        execLess(vm);
+        execLess(vm->curr_fun);
         break;
     case VMOP_GREATEREQU:
-        execGreaterEqu(vm);
+        execGreaterEqu(vm->curr_fun);
         break;
     case VMOP_LESSEQU:
-        execLessEqu(vm);
+        execLessEqu(vm->curr_fun);
         break;
 
     case VMOP_OR:
-        execOr(vm);
+        execOr(vm->curr_fun);
         break;
     case VMOP_XOR:
-        execXor(vm);
+        execXor(vm->curr_fun);
         break;
     case VMOP_AND:
-        execAnd(vm);
+        execAnd(vm->curr_fun);
         break;
     case VMOP_NOT:
-        execNot(vm);
+        execNot(vm->curr_fun);
         break;
 
     case VMOP_DUMP:
-        execDump(vm);
+        execDump(vm->curr_fun);
         break;
 
     case VMOP_SET:
-        execSet(vm, 1, (u_int64_t) op->data);
+        execSet(vm->curr_fun, 1, (u_int64_t) op->data);
         break;
     case VMOP_LET:
-        execSet(vm, 0, (u_int64_t) op->data);
+        execSet(vm->curr_fun, 0, (u_int64_t) op->data);
         break;
     case VMOP_CALL:
-        execCall(vm, (u_int64_t) op->data);
+        execCall(vm->curr_fun, (u_int64_t) op->data);
         break;
     case VMOP_CALLC:
-        execCallc(vm, (u_int64_t) op->data, code);
-        break;
-
-    case VMOP_EXIT:
-        execExit(vm);
+        execCallc(vm, (u_int64_t) op->data);
         break;
 
     case VMOP_DATA:
-        dumpQueue(vm->queue);
-        RAISE_EXEC_DATA();
-    case VMOP_DO:
-        dumpQueue(vm->queue);
-        RAISE_UNREACHABLE();
+        RAISE_EXECUTION_TYPE(vm->curr_fun->queue);
     default:
-        dumpQueue(vm->queue);
-        RAISE_UNREACHABLE();
+        RAISE_UNREACHABLE(vm->curr_fun->queue);
     }
 
     free(op);
 }
 
-void opJmp(VirtMachine*, u_int8_t*);
-void opJmpNif(VirtMachine* vm, u_int8_t* base) {
-    Qitem* bool = dequeue(vm->queue);
-    expectQitemDt(vm, bool, BOOLDT);
+void opJmp(VirtMachine*);
+void opJmpNif(VirtMachine* vm) {
+    Qitem* bool = dequeue(vm->curr_fun->queue);
+    expectQitemDt(vm->curr_fun, bool, BOOLDT);
     if (bool->data->data == 0) {
-        opJmp(vm, base);
+        opJmp(vm);
     } else {
-        vm->ip += 8;
+        vm->curr_fun->ip += 8;
     }
 
     free(bool);
 }
 
-void opJmp(VirtMachine* vm, u_int8_t* base) {
-    u_int64_t offset = *((u_int64_t*) vm->ip);
-    vm->ip = base + offset;
+void opJmp(VirtMachine* vm) {
+    u_int64_t offset = *((u_int64_t*) vm->curr_fun->ip);
+    vm->curr_fun->ip = vm->code + offset;
 }
 
-void opReq(VirtMachine* vm) {
-    Qitem* front = dequeue(vm->queue);
+void opReq(VmFun* fun) {
+    Qitem* front = dequeue(fun->queue);
     front->last = NULL;
 
-    if (vm->queue->back == NULL) {
-        vm->queue->front = front;
-        vm->queue->back = front;
+    if (fun->queue->back == NULL) {
+        fun->queue->front = front;
+        fun->queue->back = front;
     } else {
-        vm->queue->back->last = front;
-        vm->queue->back = front;
+        fun->queue->back->last = front;
+        fun->queue->back = front;
     }
 
     free(front);
 }
 
-void opDup(VirtMachine* vm) {
-    Qitem* front = queuePeek(vm->queue);
-    enqueue(vm->queue, front->data, front->type);
+void opDup(VmFun* fun) {
+    Qitem* front = queuePeek(fun->queue);
+    enqueue(fun->queue, front->data, front->type);
 }
 
-void opCpy(VirtMachine* vm) {
-    Qitem* front = queuePeek(vm->queue);
+void opCpy(VmFun* fun) {
+    Qitem* front = queuePeek(fun->queue);
     VmData* data = NULL;
     if (front->type == VMOP_DATA) {
-        data = copyData(vm, front->data->type, front->data->data);
+        data = copyData(fun, front->data->type, front->data->data);
     }
 
-    enqueue(vm->queue, data, front->type);
+    enqueue(fun->queue, data, front->type);
 }
 
-void opRm(VirtMachine* vm) {
-    free(dequeue(vm->queue));
+void opRm(VmFun* fun) {
+    free(dequeue(fun->queue));
 }
 
-void opOpAndArg(VirtMachine* vm, VmOp op) {
-    enqueue(vm->queue, (void*) *((u_int64_t*) vm->ip), op);
-    vm->ip += 8;
-    vm->op_count++;
+void opOpAndArg(VmFun* fun, VmOp op) {
+    enqueue(fun->queue, (void*) *((u_int64_t*) fun->ip), op);
+    fun->ip += 8;
+    fun->op_count++;
+}
+
+void opRet(VirtMachine* vm) {
+    if (vm->curr_fun->ret == NULL) {
+        exit(0);
+    }
+    free(vm->curr_fun);
+    vm->curr_fun = vm->curr_fun->ret;
+}
+
+VmFun* vmFunInit(VmFun* ret, u_int8_t* ip) {
+    VmFun* fun = malloc(sizeof(VmFun));
+    fun->ip = ip;
+    fun->queue = queueInit();
+    fun->gc = gcInit();
+
+    fun->vars = NULL;
+    fun->var_num = 0;
+    
+    fun->op_count = 0;
+    fun->ret = ret;
+    return fun;
 }
 
 VirtMachine* vmInit(u_int8_t* code, VmOptions* options) {
     VirtMachine* new = malloc(sizeof(VirtMachine));
-    new->ip = code;
-    new->queue = queueInit();
-    new->op_count = 0;
-    new->gc = gcInit();
-
-    new->vars = NULL;
-    new->var_num = 0;
-
+    new->code = code;
+    new->curr_fun = vmFunInit(NULL, code);
     new->options = options;
     return new;
 }
 
 void vmInterpret(u_int8_t* code, VmOptions* options) {
     VirtMachine* vm = vmInit(code, options);
-    gcInit();
 
     VmOp op;
+    VmFun* curr;
     while (1) {
-        if (vm->options->dumpInfo) {
-            dumpQueue(vm->queue);
+        if (vm->options->dumpQueue) {
+            dumpQueue(vm->curr_fun->queue);
         }
 
-        markQueue(vm->gc, vm->queue);
-        markVars(vm->gc, vm->vars, vm->var_num);
-        sweep(vm->gc);
+        curr = vm->curr_fun;
+        markQueue(curr->gc, curr->queue);
+        markVars(curr->gc, curr->vars, curr->var_num);
+        sweep(curr->gc);
         
-        op = *(vm->ip++);
+        op = *(curr->ip++);
         if (op == VMOP_DATA) {
-            opData(vm);
+            opData(curr);
         } else if (op == VMOP_VAR) {
-            opVar(vm);
+            opVar(curr);
 
         } else if (op == VMOP_DO) {
-            opDo(vm, code);
-            vm->op_count--;
+            opDo(vm);
+            curr->op_count--;
         } else if (op == VMOP_DOALL) {
-            for (; vm->op_count > 0; vm->op_count--) {
-                opDo(vm, code);
+            if (curr->op_count > 0) {
+                curr->op_count--;
+                curr->ip--;  // loop
+                opDo(vm);
             }
 
         } else if (op == VMOP_JMPNIF) {
-            opJmpNif(vm, code);
+            opJmpNif(vm);
         } else if (op == VMOP_JMP) {
-            opJmp(vm, code);
+            opJmp(vm);
 
         } else if (op == VMOP_REQ) { 
-            opReq(vm);
+            opReq(curr);
 
         } else if (op == VMOP_DUP) { 
-            opDup(vm);
+            opDup(curr);
         } else if (op == VMOP_CPY) { 
-            opCpy(vm);
+            opCpy(curr);
         } else if (op == VMOP_RM) { 
-            opRm(vm);
+            opRm(curr);
         } else if (op == VMOP_RET) {
-            return;
+            opRet(vm);
 
         } else if (op == VMOP_SET || op == VMOP_LET || op == VMOP_CALL || op == VMOP_CALLC) { 
-            opOpAndArg(vm, op);
+            opOpAndArg(curr, op);
 
-        } else if (op >= VMOP_ADD && op <= VMOP_EXIT) {    
-            enqueue(vm->queue, NULL, op);
-            vm->op_count++;
+        } else if (op >= VMOP_ADD && op <= VMOP_RET - 1) {    
+            enqueue(curr->queue, NULL, op);
+            curr->op_count++;
 
         } else {
-            dumpQueue(vm->queue);
-            RAISE_UNREACHABLE();
+            RAISE_UNREACHABLE(curr->queue);
         }
     }    
 }

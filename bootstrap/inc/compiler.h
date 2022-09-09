@@ -42,7 +42,6 @@ typedef enum ByteCode {
     BC_CALLC,
     BC_RET,
     
-    BC_EXIT,
     ENDARRAY,
 } ByteCode;
 typedef enum BcDataType {
