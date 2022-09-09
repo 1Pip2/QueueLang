@@ -100,6 +100,8 @@ char* strQitem(Qitem* op) {
         return "let";
     case VMOP_CALL:
         return "call";
+    case VMOP_CALLC:
+        return "call";
     
     case VMOP_EXIT:
         return "exit";

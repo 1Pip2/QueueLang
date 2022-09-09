@@ -11,12 +11,21 @@ typedef struct Compiler {
     char* outputfile;
 
     char progdef;
+    u_int64_t prog_loc;
     char endif;
     u_int64_t* ifrets;
     size_t ifret_num;
 
     char** vars;
     size_t var_num;
+
+    char** funcs;
+    int64_t* func_locs;
+    size_t func_num;
+
+    u_int64_t* references_addr;
+    u_int64_t* references_func;
+    size_t reference_num;
 } Compiler;
 
 void eofError(Token* token) {
@@ -37,8 +46,7 @@ Token* safePop(Compiler* compiler) {
 long getFileLen(char* filename) {
     FILE *fp = fopen(filename, "rb");
     if (fp == NULL) {
-        printf("Error: Unable to open '%s'\n", filename);
-        exit(1);
+        return 0;
     }
 
     fseek(fp, 0, SEEK_END);
@@ -159,6 +167,8 @@ ByteCode get_op(TokenType2 type) {
     case TKTYPE_RM:
         return BC_RM;
     
+    case TKTYPE_RET:
+        return BC_RET;
     default:
         printf("Unreachable in get_op\n");
         exit(1);
@@ -314,6 +324,17 @@ void compileSetLet(Compiler* compiler) {
     expectSecType(compiler->curr, TKTYPE_CPAREN);
 }
 
+int inFuncs(Compiler* compiler, char* str) {
+    for (size_t i = 0; i < compiler->func_num; i++) {
+        if (strcmp(compiler->funcs[i], str) == 0) {
+            compiler->references_func = realloc(compiler->references_func, ++compiler->reference_num * sizeof(u_int64_t));
+            compiler->references_func[compiler->reference_num-1] = i;
+            return 1;
+        }
+    }
+    return 0;
+}
+
 void compileCall(Compiler* compiler) {
     appendByte(compiler->outputfile, BC_CALL);
 
@@ -330,6 +351,11 @@ void compileCall(Compiler* compiler) {
         appendQuad(compiler->outputfile, BUILTIN_POP);
     } else if (strcmp(compiler->curr->stringdata, "size") == 0) {
         appendQuad(compiler->outputfile, BUILTIN_SIZE);
+    } else if (inFuncs(compiler, compiler->curr->stringdata)) {
+        setByte(compiler->outputfile, BC_CALLC, getFileLen(compiler->outputfile) - 1);
+        compiler->references_addr = realloc(compiler->references_addr, compiler->reference_num * sizeof(u_int64_t));
+        compiler->references_addr[compiler->reference_num-1] = getFileLen(compiler->outputfile);
+        appendQuad(compiler->outputfile, 0);
     } else {
         PRINT_DEBUG(compiler->curr);
         printf("NameError: '%s' is undefined\n", compiler->curr->stringdata);
@@ -383,6 +409,7 @@ void compileProg(Compiler* compiler) {
         exit(1);
     }
     compiler->progdef = 1;
+    compiler->prog_loc = getFileLen(compiler->outputfile);
 
     compiler->endif = 0;
     compiler->vars = NULL;
@@ -402,6 +429,56 @@ void compileProg(Compiler* compiler) {
     appendByte(compiler->outputfile, BC_DO);
 }
 
+void getFunDefs(Compiler* compiler) {
+    compiler->func_locs = NULL;
+    compiler->funcs = NULL;
+    compiler->func_num = 0;
+
+    compiler->references_addr = NULL;
+    compiler->references_func = NULL;
+    compiler->reference_num = 0;
+
+    Token* curr = compiler->tokens->front;
+    while (curr != NULL) {
+        if (curr->type2 == TKTYPE_FUN) {
+            expectPrimeType(curr->last, _TKTYPE_ID);
+            compiler->funcs = realloc(compiler->funcs, ++compiler->func_num * sizeof(char*));
+            compiler->func_locs = realloc(compiler->func_locs, compiler->func_num * sizeof(int64_t));
+            compiler->funcs[compiler->func_num-1] = curr->last->stringdata;
+            compiler->func_locs[compiler->func_num-1] = -1;
+        }
+        curr = curr->last;
+    }
+}
+
+void compileFun(Compiler* compiler) {
+    compiler->endif = 0;
+    compiler->vars = NULL;
+    compiler->var_num = 0;
+    compiler->curr = safePop(compiler);
+    
+    size_t i;
+    for (i = 0; i < compiler->func_num; i++) {
+        if (strcmp(compiler->funcs[i], compiler->curr->stringdata) == 0) {
+            break;
+        }
+    }
+    
+    if (compiler->func_locs[i] != -1) {
+        PRINT_DEBUG(compiler->curr);
+        printf("NameError: Function already defined\n");
+        exit(1);
+    }
+    compiler->func_locs[i] = getFileLen(compiler->outputfile);
+
+    compiler->curr = safePop(compiler);
+    expectSecType(compiler->curr, TKTYPE_COLON);
+
+    compileBody(compiler);
+
+    appendByte(compiler->outputfile, BC_RET);
+}
+
 void compileTokens(TkQueue* tokens, char* filename) {
     Compiler* compiler = malloc(sizeof(Compiler));
     char* outfile = getOutputFileName(filename);
@@ -411,10 +488,16 @@ void compileTokens(TkQueue* tokens, char* filename) {
     compiler->tokens = tokens;
     compiler->progdef = 0;
 
+    appendByte(compiler->outputfile, BC_JMP);
+    appendQuad(compiler->outputfile, 0);
+    getFunDefs(compiler);
     while ((compiler->curr = tkQueuePop(compiler->tokens)) != NULL) {
         switch (compiler->curr->type2) {
         case TKTYPE_PROG:
             compileProg(compiler);
+            break;
+        case TKTYPE_FUN:
+            compileFun(compiler);
             break;
         
         default:
@@ -423,4 +506,14 @@ void compileTokens(TkQueue* tokens, char* filename) {
             exit(1);
         }
     }
+
+    if (!compiler->progdef) {
+        printf("SyntaxError: Missing 'prog'\n");
+        exit(1);
+    }
+
+    for (size_t i = 0; i < compiler->reference_num; i++) {
+        setQuad(compiler->outputfile, compiler->func_locs[compiler->references_func[i]], compiler->references_addr[i]);
+    }
+    setQuad(compiler->outputfile, compiler->prog_loc, 1);
 }

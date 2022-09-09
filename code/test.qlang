@@ -1,0 +1,9 @@
+prog: [
+    call(test);
+    . True;
+]
+
+fun test: [
+    . -342;
+    ret
+]

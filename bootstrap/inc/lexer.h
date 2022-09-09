@@ -48,6 +48,7 @@ typedef enum TokenType2 {
     TKTYPE_LET,
     TKTYPE_SET,
     TKTYPE_CALL,
+    TKTYPE_RET,
 
     TKTYPE_COLON,
     TKTYPE_OBRACK,

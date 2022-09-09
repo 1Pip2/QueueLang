@@ -179,6 +179,9 @@ void appendIdentifier(Lexer* lexer, char* str) {
     } else if (strcmp(str, "call") == 0) {
         tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_CALL, NULL, 0);
         free(str);
+    } else if (strcmp(str, "ret") == 0) {
+        tkQueueAppend(lexer, _TKTYPE_OP, TKTYPE_RET, NULL, 0);
+        free(str);
 
     } else if (strcmp(str, "True") == 0) {
         tkQueueAppend(lexer, _TKTYPE_LIT, TKTYPE_TRUE, NULL, 0);

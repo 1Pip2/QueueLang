@@ -39,6 +39,8 @@ typedef enum ByteCode {
     BC_LET,
     BC_SET,
     BC_CALL,
+    BC_CALLC,
+    BC_RET,
     
     BC_EXIT,
     ENDARRAY,

@@ -28,6 +28,9 @@ This is where the execution of the program starts
 A statement is either an operation, keyword or a litteral.
 
 ### Functions
+A function is defined using the following syntax:
+> fun \<identifier>: \[\<code>]
+
 A function is called using the following syntax:
 > call(\<identifier>) \<arg1> \<arg2> ... do
 
@@ -65,6 +68,7 @@ Queue:
 - 'dup' will enqueue a copy of the reference to the front element in the queue
 - 'cpy' will enqueue a copy of the front element in the queue
 - 'rm' removes the element at the front of the queue
+- 'ret' returns from a function
 
 ### Variables
 'set(\<identifier>)' sets that identifier to the value at the front of the queue.

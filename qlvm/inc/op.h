@@ -45,6 +45,7 @@ void execNot(struct VirtMachine*);
 void execDump(struct VirtMachine*);
 void execSet(struct VirtMachine*, u_int8_t, u_int64_t);
 void execCall(struct VirtMachine*, u_int64_t);
+void execCallc(struct VirtMachine*, u_int64_t, u_int8_t*);
 void execExit(struct VirtMachine*);
 
 #endif

@@ -28,7 +28,7 @@ void opVar(VirtMachine* vm) {
     enqueue(vm->queue, vm->vars[index]->data, VMOP_DATA);
 }
 
-void opDo(VirtMachine* vm) {
+void opDo(VirtMachine* vm, u_int8_t* code) {
     Qitem* op = dequeue(vm->queue);
     switch (op->type) {
     case VMOP_ADD:
@@ -88,6 +88,9 @@ void opDo(VirtMachine* vm) {
         break;
     case VMOP_CALL:
         execCall(vm, (u_int64_t) op->data);
+        break;
+    case VMOP_CALLC:
+        execCallc(vm, (u_int64_t) op->data, code);
         break;
 
     case VMOP_EXIT:
@@ -166,7 +169,7 @@ void opOpAndArg(VirtMachine* vm, VmOp op) {
     vm->op_count++;
 }
 
-VirtMachine* vmInit(u_int8_t* code) {
+VirtMachine* vmInit(u_int8_t* code, VmOptions* options) {
     VirtMachine* new = malloc(sizeof(VirtMachine));
     new->ip = code;
     new->queue = queueInit();
@@ -175,16 +178,18 @@ VirtMachine* vmInit(u_int8_t* code) {
 
     new->vars = NULL;
     new->var_num = 0;
+
+    new->options = options;
     return new;
 }
 
-_Noreturn void vmInterpret(u_int8_t* code, VmOptions* options) {
-    VirtMachine* vm = vmInit(code);
+void vmInterpret(u_int8_t* code, VmOptions* options) {
+    VirtMachine* vm = vmInit(code, options);
     gcInit();
 
     VmOp op;
     while (1) {
-        if (options->dumpInfo) {
+        if (vm->options->dumpInfo) {
             dumpQueue(vm->queue);
         }
 
@@ -199,11 +204,11 @@ _Noreturn void vmInterpret(u_int8_t* code, VmOptions* options) {
             opVar(vm);
 
         } else if (op == VMOP_DO) {
-            opDo(vm);
+            opDo(vm, code);
             vm->op_count--;
         } else if (op == VMOP_DOALL) {
             for (; vm->op_count > 0; vm->op_count--) {
-                opDo(vm);
+                opDo(vm, code);
             }
 
         } else if (op == VMOP_JMPNIF) {
@@ -220,8 +225,10 @@ _Noreturn void vmInterpret(u_int8_t* code, VmOptions* options) {
             opCpy(vm);
         } else if (op == VMOP_RM) { 
             opRm(vm);
+        } else if (op == VMOP_RET) {
+            return;
 
-        } else if (op == VMOP_SET || op == VMOP_LET || op == VMOP_CALL) { 
+        } else if (op == VMOP_SET || op == VMOP_LET || op == VMOP_CALL || op == VMOP_CALLC) { 
             opOpAndArg(vm, op);
 
         } else if (op >= VMOP_ADD && op <= VMOP_EXIT) {    

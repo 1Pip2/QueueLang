@@ -129,6 +129,10 @@ void execCall(VirtMachine* vm, u_int64_t data) {
     }
 }
 
+void execCallc(VirtMachine* vm, u_int64_t data, u_int8_t* code) {
+    vmInterpret(code + data, vm->options);
+}
+
 void execExit(VirtMachine* vm) {
     Qitem* retval = dequeue(vm->queue);
     expectQitemDt(vm, retval, INTDT);

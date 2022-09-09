@@ -30,4 +30,6 @@ int main(int argc, char** argv) {
 
     u_int8_t* code = fetchCode(argv[argc - 1]);
     vmInterpret(code, options);
+    printf("Error: Unable to return from 'prog'\n");
+    RAISE_COMMON();
 }
