@@ -26,6 +26,26 @@ void opVar(VmFun* fun) {
     enqueue(fun->queue, fun->vars[index]->data, VMOP_DATA);
 }
 
+void opArgNum(VmFun* fun) {
+    fun->var_num = *((u_int64_t*) fun->ip);
+    fun->vars = realloc(fun->vars, fun->var_num * sizeof(VmVar*));
+    for (size_t i = 0; i < fun->var_num; i++) {
+        Qitem* vardata = dequeue(fun->ret->queue);
+        fun->vars[i] = malloc(sizeof(VmVar));
+        fun->vars[i]->present = 1;
+        fun->vars[i]->writeable = 1;
+            
+        if (vardata->type != VMOP_DATA) {
+            RAISE_EXPECT_DATA(fun->queue);
+        }
+
+        fun->vars[i]->data = vardata->data;
+        free(vardata);
+    }
+
+    fun->ip += 8;
+}
+
 void opDo(VirtMachine* vm) {
     Qitem* op = dequeue(vm->curr_fun->queue);
     switch (op->type) {
@@ -162,6 +182,30 @@ void opRet(VirtMachine* vm) {
     if (vm->curr_fun->ret == NULL) {
         exit(0);
     }
+
+    for (size_t i = 0; i < vm->curr_fun->var_num; i++) {
+        free(vm->curr_fun->vars[i]);
+    }
+    if (vm->curr_fun->vars != NULL) {
+        free(vm->curr_fun->vars);
+    }
+
+    markQueue(vm->curr_fun->gc, vm->curr_fun->queue);
+    sweep(vm->curr_fun->gc);
+    HeapFragment* last;
+    for (HeapFragment* hf = vm->curr_fun->gc->head; hf != NULL; free(last)) {
+        last = hf;
+        hf = hf->next; 
+    }
+    free(vm->curr_fun->gc);
+
+    Qitem* tmp;
+    for (Qitem* curr = vm->curr_fun->queue->front; curr != NULL; free(tmp)) {
+        tmp = curr;
+        curr = curr->last;
+        enqueue(vm->curr_fun->ret->queue, tmp->data, tmp->type);
+    }
+
     free(vm->curr_fun);
     vm->curr_fun = vm->curr_fun->ret;
 }
@@ -208,6 +252,8 @@ void vmInterpret(u_int8_t* code, VmOptions* options) {
             opData(curr);
         } else if (op == VMOP_VAR) {
             opVar(curr);
+        } else if (op == VMOP_ARGNUM) {
+            opArgNum(curr);
 
         } else if (op == VMOP_DO) {
             opDo(vm);

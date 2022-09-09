@@ -6,6 +6,7 @@
 typedef enum ByteCode {
     BC_DATA,
     BC_VAR,
+    BC_ARGNUM,
     
     BC_DO,
     BC_DOALL,

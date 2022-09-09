@@ -1,9 +1,8 @@
 prog: [
-    call(test);
-    . True;
+    call(fac) 9 .;
 ]
 
-fun test: [
-    . -342;
-    ret
+fun fac: n [
+    = n 0; if [1 ret] endif
+    - n 1 call(fac) do * n; ret
 ]

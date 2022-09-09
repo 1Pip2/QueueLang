@@ -1,0 +1,30 @@
+prog: [
+    call(qsort) {6 8 0 -34 2 3 3 9 5 6 1} .;
+]
+
+fun qsort: array [
+    call(size) array = 0; if [ {} ret ] endif
+    call(pop) array 0 let(pivot);
+
+    set(low) {};
+    set(high) {};
+
+    call(size) array - do 1 set(i); 
+    while [>= i 0;] [
+        call(get) array i set(curr);
+         > curr pivot; if [
+            call(append) high curr; 
+        ] call(append) low curr; endif
+        - i 1 set(i);
+    ]
+    call(qsort) low set(low);
+    call(append) low pivot;
+    call(size) high - do 1 set(i); 
+    while [>= i 0;] [
+        call(get) array i 
+        call(append) low;
+        - i 1 set(i);
+    ]
+
+    low ret
+]

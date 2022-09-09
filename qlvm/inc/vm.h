@@ -8,7 +8,8 @@
 typedef enum VmOp {
     VMOP_DATA,
     VMOP_VAR,
-    
+    VMOP_ARGNUM,
+
     VMOP_DO,
     VMOP_DOALL,
 

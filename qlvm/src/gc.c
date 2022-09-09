@@ -74,9 +74,6 @@ void markPtr(GarbageCollector* gc, void* ptr) {
             return;
         }
     }
-
-    printf("Pointer %p was not allocated\n", ptr);
-    exit(ERR_FATAL);
 }
 
 void markArrayData(GarbageCollector* gc, u_int64_t data, VmDataType type) {

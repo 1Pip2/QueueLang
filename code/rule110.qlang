@@ -1,10 +1,9 @@
 prog: [
-    call(rule110);
+    call(rule110) 10;
+    call(rule110) 20;
 ]
 
-fun rule110: [
-    let(size) 100;
-    
+fun rule110: size [
     set(curr) {};
     set(i) 0;
     while [- size 1 < i;] [

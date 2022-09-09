@@ -42,6 +42,14 @@ Token* safePop(Compiler* compiler) {
 
     return token;
 }
+Token* safePeek(Compiler* compiler) {
+    Token* token = compiler->tokens->front;
+    if (token == NULL) {
+        eofError(compiler->curr);
+    }
+
+    return token;
+}
 
 long getFileLen(char* filename) {
     FILE *fp = fopen(filename, "rb");
@@ -467,6 +475,21 @@ void compileFun(Compiler* compiler) {
 
     compiler->curr = safePop(compiler);
     expectSecType(compiler->curr, TKTYPE_COLON);
+
+    size_t arg_num = 0;
+    appendByte(compiler->outputfile, BC_ARGNUM);
+    while (safePeek(compiler)->type1 == _TKTYPE_ID) {
+        compiler->curr = safePop(compiler);
+        if (findVar(compiler->curr->stringdata, compiler->vars, compiler->var_num) != -1) {
+            PRINT_DEBUG(compiler->curr);
+            printf("Error: %s is already defined\n", compiler->curr->stringdata);
+            exit(1);
+        }
+        compiler->vars = realloc(compiler->vars, (++compiler->var_num) * sizeof(char*));
+        compiler->vars[compiler->var_num-1] = compiler->curr->stringdata;
+        arg_num++;
+    }
+    appendQuad(compiler->outputfile, arg_num);
 
     compileBody(compiler);
 
