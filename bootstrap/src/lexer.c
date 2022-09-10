@@ -268,9 +268,8 @@ void lexChar(Lexer* lexer) {
         if (line[lexer->index] == '*' && line[lexer->index+1] == '/') {
             lexer->comment = 0;
             lexer->index++;
-        } else {
-            return;
-        }
+        } 
+        return;
     }
 
 

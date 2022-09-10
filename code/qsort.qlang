@@ -1,3 +1,5 @@
+import "code/rule110.qlang"
+
 fun qsort: array [
     call(size) array = 0; if [ {} ret ] endif
     call(pop) array 0 let(pivot);
