@@ -107,6 +107,11 @@ The while keyword executes the first body. It then expects a bool a the front of
 - Bool: True, False
 - Array: {Litteral Litteral ...}
 
+### Importing files
+To import a file, use:
+> import "<filename>"
+This will copy the contents of that file to the 'to be' compiled code.
+
 ### Comments
 - '/\/' will comment out everything after it untill the end of the line
 - '/\*' will comment out everything after it untill a '\*/'
