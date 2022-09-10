@@ -106,3 +106,7 @@ The while keyword executes the first body. It then expects a bool a the front of
 - Int: 0, 5, -4, 100, ...
 - Bool: True, False
 - Array: {Litteral Litteral ...}
+
+### Comments
+- '//' will comment out everything after, it till the end of the line
+- '/*' will comment out everything after, it till a '*/'
