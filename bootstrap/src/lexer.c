@@ -63,6 +63,8 @@ typedef struct Lexer {
     size_t line_num;
     size_t index;
 
+    char comment;
+
     TkQueue* tokens;
 } Lexer;
 
@@ -239,7 +241,26 @@ void lexIntLit(Lexer* lexer) {
 
 void lexChar(Lexer* lexer) {
     char* line = lexer->lines->lines[lexer->line_num];
+    if (lexer->comment) {
+        if (line[lexer->index] == '*' && line[lexer->index+1] == '/') {
+            lexer->comment = 0;
+            lexer->index += 2;
+        } else {
+            return;
+        }
+    }
 
+
+    if (line[lexer->index] == '/' && line[lexer->index+1] == '/') {
+        while (line[lexer->index++] != '\0');
+        lexer->index -= 2;
+        return;
+    }
+    if (line[lexer->index] == '/' && line[lexer->index+1] == '*') {
+        lexer->index++;
+        lexer->comment = 1;
+        return;
+    }
 
     if (isNumeric(line[lexer->index]) || (line[lexer->index] == '-' && isNumeric(line[lexer->index + 1]))) {
         lexIntLit(lexer);
@@ -326,7 +347,7 @@ void lexChar(Lexer* lexer) {
     if (isLetter(line[lexer->index])) {
         lexIdentifier(lexer);
     } else {
-            printf("In %s::%lu\n", lexer->filename, lexer->line_num);
+        printf("In %s::%lu\n", lexer->filename, lexer->line_num);
         printf("ERROR: Unknown Symbol '%c'\n", line[lexer->index]);
         exit(1);
     }
@@ -340,6 +361,7 @@ void lexLine(Lexer* lexer) {
 
 TkQueue* lexLines(Lines* lines, char* filename) {
     Lexer* lexer = lexerInit(filename, lines);
+    lexer->comment = 0;
     for (; lexer->line_num < lines->size; lexer->line_num++) {
         lexLine(lexer);
     }

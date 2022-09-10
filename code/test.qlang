@@ -1,9 +1,12 @@
 prog: [
     set(xs) {};
-    call(test) xs 8;
+    call(test) xs 8;  // this is a comment
     . xs;
 ]
 
+/* 
+The function test takes an array + value and appends the value to that array.
+Also this is a multiline comment */
 fun test: n m [
     call(append) n m; ret
 ]
