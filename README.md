@@ -109,7 +109,8 @@ The while keyword executes the first body. It then expects a bool a the front of
 
 ### Importing files
 To import a file, use:
-> import "<filename>"
+> import "\<filename>"
+  
 This will copy the contents of that file to the 'to be' compiled code.
 
 ### Comments
