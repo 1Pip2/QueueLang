@@ -52,7 +52,7 @@ void execNot(VmFun* fun) {
     Qitem* op = dequeue(fun->queue);
     expectQitemDt(fun, op, BOOLDT);
 
-    VmData* new = gcMalloc(fun->gc, sizeof(VmData));
+    VmData* new = gcMalloc(sizeof(VmData));
     new->type = BOOLDT;
     new->data = op->data->data == 0;
     enqueue(fun->queue, new, VMOP_DATA);

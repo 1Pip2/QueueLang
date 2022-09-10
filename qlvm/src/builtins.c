@@ -27,7 +27,7 @@ void builtinGet(VmFun* fun) {
         exit(ERR_COMMON);
     }
 
-    VmData* data = gcMalloc(fun->gc, sizeof(VmData));
+    VmData* data = gcMalloc(sizeof(VmData));
     data->data = array->values[arg2->data->data];
     data->type = (VmDataType) {arg1->data->type.type, arg1->data->type.array_deph - 1};
     enqueue(fun->queue, data, VMOP_DATA);
@@ -83,7 +83,7 @@ void builtinPop(VmFun* fun) {
         exit(ERR_COMMON);
     }
 
-    VmData* data = gcMalloc(fun->gc, sizeof(VmData));
+    VmData* data = gcMalloc(sizeof(VmData));
     data->data = array->values[arg2->data->data];
     data->type = (VmDataType) {arg1->data->type.type, arg1->data->type.array_deph - 1};
     enqueue(fun->queue, data, VMOP_DATA);
@@ -109,7 +109,7 @@ void builtinSize(VmFun* fun) {
     }
 
     VmArray* array = (void*) arg1->data->data;
-    VmData* data = gcMalloc(fun->gc, sizeof(VmData));
+    VmData* data = gcMalloc(sizeof(VmData));
     data->data = array->size;
     data->type = INTDT;
     enqueue(fun->queue, data, VMOP_DATA);

@@ -1,8 +1,9 @@
 prog: [
-    call(fac) 9 .;
+    set(xs) {};
+    call(test) xs 8;
+    . xs;
 ]
 
-fun fac: n [
-    = n 0; if [1 ret] endif
-    - n 1 call(fac) do * n; ret
+fun test: n m [
+    call(append) n m; ret
 ]

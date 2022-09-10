@@ -14,12 +14,12 @@ void appendToArray(VmFun* fun, VmArray* array, u_int64_t data) {
         }
     }
 
-    array->values = gcRealloc(fun->gc, array->values, (array->totalsize) * sizeof(u_int64_t));
+    array->values = gcRealloc(array->values, (array->totalsize) * sizeof(u_int64_t));
     array->values[array->size++] = data;
 }
 
 VmArray* initArray(VmFun* fun, VmData* data) {
-    VmArray* array = gcMalloc(fun->gc, sizeof(VmArray));
+    VmArray* array = gcMalloc(sizeof(VmArray));
     array->values = NULL;
     array->size = 0;
     array->totalsize = 0;
@@ -45,7 +45,7 @@ VmArray* initArray(VmFun* fun, VmData* data) {
 }
 
 VmData* initData(VmFun* fun) {
-    VmData* new = gcMalloc(fun->gc, sizeof(VmData));
+    VmData* new = gcMalloc(sizeof(VmData));
     VmBaseType base_type = *(fun->ip++);
 
     new->type.array_deph = 0;
@@ -71,9 +71,9 @@ VmData* initData(VmFun* fun) {
 }
 
 VmData* copyData(VmFun* fun, VmDataType type, u_int64_t data) {
-    VmData* new = gcMalloc(fun->gc, sizeof(VmData));
+    VmData* new = gcMalloc(sizeof(VmData));
     if (type.array_deph > 0) {
-        VmArray* array = gcMalloc(fun->gc, sizeof(VmArray));
+        VmArray* array = gcMalloc(sizeof(VmArray));
         VmArray* old_array = (void*) data;
 
         new->data = (u_int64_t) array;
@@ -85,7 +85,7 @@ VmData* copyData(VmFun* fun, VmDataType type, u_int64_t data) {
         VmData* curr;
         for (size_t i = 0; i < old_array->size; i++) {
             curr = copyData(fun, elementtype, old_array->values[i]);
-            array->values = gcRealloc(fun->gc, array->values, (i + 2) * sizeof(u_int64_t));
+            array->values = gcRealloc(array->values, (i + 2) * sizeof(u_int64_t));
             array->values[i] = curr->data;
         }
         

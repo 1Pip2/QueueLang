@@ -190,17 +190,6 @@ void opRet(VirtMachine* vm) {
         free(vm->curr_fun->vars);
     }
 
-    markQueue(vm->curr_fun->gc, vm->curr_fun->queue);
-    sweep(vm->curr_fun->gc);
-    if (vm->curr_fun->ret->gc->tail == NULL) {
-        vm->curr_fun->ret->gc->head = vm->curr_fun->gc->head;
-        vm->curr_fun->ret->gc->tail = vm->curr_fun->gc->tail;
-    } else {
-        vm->curr_fun->ret->gc->tail->next = vm->curr_fun->gc->head;
-        vm->curr_fun->ret->gc->tail = vm->curr_fun->gc->tail;
-    }
-    free(vm->curr_fun->gc);
-
     Qitem* tmp;
     for (Qitem* curr = vm->curr_fun->queue->front; curr != NULL; free(tmp)) {
         tmp = curr;
@@ -218,7 +207,6 @@ VmFun* vmFunInit(VmFun* ret, u_int8_t* ip) {
     VmFun* fun = malloc(sizeof(VmFun));
     fun->ip = ip;
     fun->queue = queueInit();
-    fun->gc = gcInit();
 
     fun->vars = NULL;
     fun->var_num = 0;
@@ -238,6 +226,7 @@ VirtMachine* vmInit(u_int8_t* code, VmOptions* options) {
 
 void vmInterpret(u_int8_t* code, VmOptions* options) {
     VirtMachine* vm = vmInit(code, options);
+    gcInit();
 
     VmOp op;
     VmFun* curr;
@@ -246,11 +235,14 @@ void vmInterpret(u_int8_t* code, VmOptions* options) {
             dumpQueue(vm->curr_fun->queue);
         }
 
-        curr = vm->curr_fun;
-        markQueue(curr->gc, curr->queue);
-        markVars(curr->gc, curr->vars, curr->var_num);
-        sweep(curr->gc);
+        for (curr = vm->curr_fun; curr != NULL; curr = curr->ret) {
+            markQueue(curr->queue);
+            markVars(curr->vars, curr->var_num);
+        }
         
+        sweep();
+        
+        curr = vm->curr_fun;
         op = *(curr->ip++);
         if (op == VMOP_DATA) {
             opData(curr);

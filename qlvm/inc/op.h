@@ -14,7 +14,7 @@ Qitem* op2 = dequeue(fun->queue);                                            \
 expectQitemDt(fun, op1, op1type);                                            \
 expectQitemDt(fun, op2, op2type);                                            \
 \
-VmData* new = gcMalloc(fun->gc, sizeof(VmData));                             \
+VmData* new = gcMalloc(sizeof(VmData));                             \
 new->type = restype;                                                        \
 new->data = (int64_t) op1->data->data operation (int64_t) op2->data->data;  \
 enqueue(fun->queue, new, VMOP_DATA);                                         \

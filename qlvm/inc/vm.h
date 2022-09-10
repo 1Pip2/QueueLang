@@ -66,11 +66,9 @@ typedef struct VmOptions {
 } VmOptions;
 
 struct Queue;
-struct GarbageCollector;
 typedef struct VmFun {
     u_int8_t* ip;
     struct Queue* queue;
-    struct GarbageCollector* gc;
     
     VmVar** vars;
     size_t var_num;
