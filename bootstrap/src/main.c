@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "lexer.h"
+#include "preprocessor.h"
 #include "compiler.h"
 
 int main(int argc, char** argv) {
@@ -11,5 +12,6 @@ int main(int argc, char** argv) {
     }
 
     TkQueue* tokens = lexFile(argv[1]);
+    preprocessTokens(tokens);
     compileTokens(tokens, argv[1]);
 }

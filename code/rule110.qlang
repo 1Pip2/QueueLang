@@ -1,8 +1,3 @@
-prog: [
-    call(rule110) 10;
-    call(rule110) 20;
-]
-
 fun rule110: size [
     set(curr) {};
     set(i) 0;

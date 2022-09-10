@@ -1,12 +1,8 @@
-prog: [
-    set(xs) {};
-    call(test) xs 8;  // this is a comment
-    . xs;
-]
+import "code/qsort.qlang"
+import "code/rule110.qlang"
 
-/* 
-The function test takes an array + value and appends the value to that array.
-Also this is a multiline comment */
-fun test: n m [
-    call(append) n m; ret
+prog: [
+    call(qsort) {0 8 -2 0 -4 -1234 23 5} .;
+    call(qsort) {6 8 0 -34 2 3 3 9 5 6 1} .;
+    call(rule110) 10;
 ]

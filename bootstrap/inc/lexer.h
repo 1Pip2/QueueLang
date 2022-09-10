@@ -9,6 +9,8 @@ typedef enum TokenType1 {
     _TKTYPE_OP,
     _TKTYPE_SEPARATOR,
     _TKTYPE_LIT,
+
+    _TKTYPE_PREPROCESS,
 } TokenType1;
 typedef enum TokenType2 {
     TKTYPE_ID,
@@ -58,9 +60,12 @@ typedef enum TokenType2 {
     TKTYPE_OPAREN,
     TKTYPE_CPAREN,
 
+    TKTYPE_STR,
     TKTYPE_INT,
     TKTYPE_TRUE,
     TKTYPE_FALSE,
+
+    TKTYPE_IMPORT,
 } TokenType2;
 
 typedef struct Token {

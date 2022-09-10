@@ -64,6 +64,9 @@ typedef struct Lexer {
     size_t index;
 
     char comment;
+    char strlit;
+    char* strdata;
+    size_t strlen;
 
     TkQueue* tokens;
 } Lexer;
@@ -191,6 +194,11 @@ void appendIdentifier(Lexer* lexer, char* str) {
     } else if (strcmp(str, "False") == 0) {
         tkQueueAppend(lexer, _TKTYPE_LIT, TKTYPE_FALSE, NULL, 0);
         free(str);
+
+    } else if (strcmp(str, "import") == 0) {
+        tkQueueAppend(lexer, _TKTYPE_PREPROCESS, TKTYPE_IMPORT, NULL, 0);
+        free(str);
+    
     } else {
         tkQueueAppend(lexer, _TKTYPE_ID, TKTYPE_ID, str, 0);
     }
@@ -202,6 +210,9 @@ Lexer* lexerInit(char* filename, Lines* lines) {
     new->filename = filename;
     new->lines = lines;
     new->line_num = 0;
+
+    new->comment = 0;
+    new->strlit = 0;
 
     new->tokens = tkQueueInit();
     return new;
@@ -241,10 +252,22 @@ void lexIntLit(Lexer* lexer) {
 
 void lexChar(Lexer* lexer) {
     char* line = lexer->lines->lines[lexer->line_num];
+    if (lexer->strlit) {
+        if (line[lexer->index] == '"') {
+            lexer->strlit = 0;
+            lexer->strdata[lexer->strlen - 1] = '\0';
+            tkQueueAppend(lexer, _TKTYPE_LIT, TKTYPE_STR, lexer->strdata, 0);
+        } else {
+            lexer->strdata = realloc(lexer->strdata, ++lexer->strlen * sizeof(char));
+            lexer->strdata[lexer->strlen - 2] = line[lexer->index];
+        }
+        return;
+    }
+
     if (lexer->comment) {
         if (line[lexer->index] == '*' && line[lexer->index+1] == '/') {
             lexer->comment = 0;
-            lexer->index += 2;
+            lexer->index++;
         } else {
             return;
         }
@@ -265,8 +288,14 @@ void lexChar(Lexer* lexer) {
     if (isNumeric(line[lexer->index]) || (line[lexer->index] == '-' && isNumeric(line[lexer->index + 1]))) {
         lexIntLit(lexer);
     }
-    
+
     switch (line[lexer->index]) {
+        case '"':
+            lexer->strlit = 1;
+            lexer->strdata = malloc(sizeof(char));
+            lexer->strlen = 1;
+            return;
+
         case ' ':
             return;
         case '\n':
@@ -361,7 +390,6 @@ void lexLine(Lexer* lexer) {
 
 TkQueue* lexLines(Lines* lines, char* filename) {
     Lexer* lexer = lexerInit(filename, lines);
-    lexer->comment = 0;
     for (; lexer->line_num < lines->size; lexer->line_num++) {
         lexLine(lexer);
     }
