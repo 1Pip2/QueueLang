@@ -21,11 +21,11 @@ Simply build the project with
 > make
 
 then compile a file to bytecode with
-> ./qlc test.qlang
+> ./qlc code/example.qlang
 
 and run said bytecode with
 
-> ./qli test.qlang.bc
+> ./qli code/example.qlang.bc
 
 # Syntax
 ### Prog
