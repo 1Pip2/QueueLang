@@ -13,7 +13,7 @@ fun qsort: array [
          > curr pivot; if [
             call(append) high curr; 
         ] call(append) low curr; endif
-        - i 1 set(i);
+        + i 1 set(i);
     ]
 
     call(qsort) low set(low);
@@ -24,7 +24,7 @@ fun qsort: array [
     while [call(size) high < i;] [
         call(get) high i 
         call(append) low;
-        - i 1 set(i);
+        + i 1 set(i);
     ]
 
     low ret
