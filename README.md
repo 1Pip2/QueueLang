@@ -1,8 +1,5 @@
 # QueueLang
-QueueLang is a language that is:
-  - A WORK IN PROGRESS!
-  - Interpreted and compiled to bytecode AheadOfTime
-  - 100% queue based at runtime
+QueueLang is an interpreted programming language, built around a queue-based execution model instead of the stack-based approach used by languages like Forth. Source code compiles to bytecode, which runs on a virtual machine with a built-in mark-and-sweep garbage collector.
 ## The Concept
 All operations(+, -, if, else, ..), data(Numbers, Strings, ..) and results of operations get enqueued. <br />
 For example, "(7 - 4) * (8 % 3)" would be written as: "- 7 4 % 8 3 *;"
@@ -19,13 +16,21 @@ Then the ';' will count the number of operations(3 in this case) and will execut
 
 As you can see, the operands where dequeued and the result enqueued. Note that executing data will result in a runtime error.
 
+## Getting started
+Simply build the project with
+> make
+
+then compile a file to bytecode with
+> ./qlc test.qlang
+
+and run said bytecode with
+
+> ./qli test.qlang.bc
+
 # Syntax
 ### Prog
 This is where the execution of the program starts
 > prog: [ \<code> ]
-
-### Statements
-A statement is either an operation, keyword or a litteral.
 
 ### Functions
 A function is defined using the following syntax:
@@ -34,7 +39,7 @@ A function is defined using the following syntax:
 A function is called using the following syntax:
 > call(\<identifier>) \<arg1> \<arg2> ... do
 
-### Built in functions
+### Built-In functions
 The following functions are built into the language:
 - 'get' arg1: array, arg2: int; returns arg1\[arg2]
 - 'append' arg1: array, arg2: int; appends arg2 to arg1
@@ -62,7 +67,8 @@ Conditional:
 - 'not' will check if the front element of the queue is False
 
 Queue:
-- ';' countes all enqueued operations and executes the front of the queue that many times 
+- '.' outputs the front element of the queue to stdout
+- ';' counts all enqueued operations and executes the front of the queue that many times 
 - 'do' executes the front of the queue
 - 'req' moves the front element of the queue to the back
 - 'dup' will enqueue a copy of the reference to the front element in the queue
@@ -72,7 +78,7 @@ Queue:
 
 ### Variables
 'set(\<identifier>)' sets that identifier to the value at the front of the queue.
-To modifiy the value of a varialbe simply use 'set' again.
+To modify the value of a variable simply use 'set' again.
 'let' defines a constant and trying to 'set' a constant will result in an error.
 To use a variable, type the name of said variable(\<identifier>). This will enqueue the variable value.
 > set(a) 5 do<br />
